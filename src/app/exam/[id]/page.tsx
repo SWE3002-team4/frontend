@@ -248,7 +248,7 @@ export default function ExamPage() {
                    })}
 
                    {question.type === 'multiple' && question.options?.map((opt, i) => {
-                     const isChecked = answers[question.id]?.includes(opt);
+                     const isChecked = answers[question.id]?.includes(opt) || false;
                      return (
                        <button 
                          key={i} 

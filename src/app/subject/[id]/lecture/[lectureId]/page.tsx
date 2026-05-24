@@ -75,8 +75,8 @@ export default function LectureDetailPage() {
     console.log(`[LectureDetailPage] handleStartQuiz called for lecture ID: ${lectureId}`);
     const success = await postRequestQuiz(lectureId);
     if (success) {
-      // Sequence diagram leads to Quiz Taking Page
-      router.push('/exam/1');
+      // Navigate to the newly created Quiz Taking Page
+      router.push(`/subject/${subjectId}/lecture/${lectureId}/quiz`);
     }
   };
 
