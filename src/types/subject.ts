@@ -33,3 +33,14 @@ export interface DashboardInfo {
   weakKeywords: Keyword[];
   history: ExamResult[];
 }
+
+export interface LectureDetail {
+  materialId: string;
+  title: string;
+  pdfUrl: string;
+  summaryText: string;
+  strongKeywords: Keyword[];
+  weakKeywords: Keyword[];
+  masteryScore: number;
+  coverageScore: number;
+}
