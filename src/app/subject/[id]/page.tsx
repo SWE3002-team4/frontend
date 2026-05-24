@@ -70,7 +70,7 @@ export default function SubjectDashboardPage() {
   };
 
   const handleTakeExam = () => {
-    router.push(`/exam/${subjectId}`);
+    router.push(`/subject/${subjectId}/exam/setup`);
   };
 
   return (
