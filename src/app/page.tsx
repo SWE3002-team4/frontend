@@ -1,35 +1,13 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
+import { SubjectCard } from '../components/SubjectCard';
+import { useSubjects } from '../hooks/useSubjects';
 
-interface Subject {
-  id: string; 
-  title: string; 
-  progress: number; 
-  imageUrl: string;
-}
+export default function SubjectListPage() {
+  const { subjects, isLoading } = useSubjects();
 
-const MOCK_SUBJECTS: Subject[] = [
-  {
-    id: '1',
-    title: '소프트웨어공학 개론',
-    progress: 89,
-    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-  {
-    id: '2',
-    title: '컴파일러 원리',
-    progress: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-  {
-    id: '3',
-    title: '데이터베이스 시스템 설계',
-    progress: 65,
-    imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-];
-
-export default function Home() {
   return (
     <div className="flex-1 w-full min-h-screen bg-gray-100 text-gray-900 font-sans">
       {/* 1. Navbar */}
@@ -65,48 +43,34 @@ export default function Home() {
         
         <h2 className="text-xl font-bold mb-4 text-gray-800">내 과목 목록</h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          
-          {/* Subject Cards */}
-          {MOCK_SUBJECTS.map((subject) => (
-            <Link 
-              href={`/subject/${subject.id}`}
-              key={subject.id}
-              className="group flex flex-col bg-white border border-gray-200 rounded overflow-hidden hover:shadow-sm transition-shadow cursor-pointer"
-            >
-              {/* Image & Progress */}
-              <div className="relative h-40 w-full bg-gray-200 border-b border-gray-200">
-                <img
-                  src={subject.imageUrl}
-                  alt={subject.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded shadow-sm border border-gray-200 flex flex-col items-end">
-                  <span className="text-[10px] text-gray-500 uppercase font-bold">숙련도</span>
-                  <span className="text-sm font-bold text-blue-600">
-                    {subject.progress}%
-                  </span>
-                </div>
-              </div>
-              
-              {/* Title */}
-              <div className="p-3 bg-white">
-                <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
-                  {subject.title}
-                </h3>
-              </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <p className="text-gray-500 font-medium">과목 목록을 불러오는 중...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            
+            {/* Subject Cards */}
+            {subjects.map((subject) => (
+              <SubjectCard
+                key={subject.id}
+                id={subject.id}
+                title={subject.title}
+                thumbnail={subject.imageUrl}
+                masteryScore={subject.progress}
+              />
+            ))}
+
+            {/* Add Subject Card */}
+            <Link href="/new" className="flex flex-col items-center justify-center min-h-[12rem] bg-gray-50 border-2 border-dashed border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50/50 hover:text-blue-600 transition-colors cursor-pointer text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
+                <path d="M5 12h14"/><path d="M12 5v14"/>
+              </svg>
+              <span className="text-sm font-medium">과목 추가</span>
             </Link>
-          ))}
 
-          {/* Add Subject Card */}
-          <Link href="/new" className="flex flex-col items-center justify-center min-h-[12rem] bg-gray-50 border-2 border-dashed border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50/50 hover:text-blue-600 transition-colors cursor-pointer text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
-              <path d="M5 12h14"/><path d="M12 5v14"/>
-            </svg>
-            <span className="text-sm font-medium">과목 추가</span>
-          </Link>
-
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );
