@@ -1,7 +1,45 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSubjects } from '../../hooks/useSubjects';
 
 export default function AddSubjectPage() {
+  const router = useRouter();
+  const { addSubject, isLoading } = useSubjects();
+
+  const [subjectName, setSubjectName] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState('');
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationError('');
+
+    if (!subjectName.trim()) {
+      setValidationError('과목명을 입력해주세요.');
+      return;
+    }
+
+    const success = await addSubject({
+      title: subjectName,
+      imageFile: imageFile,
+    });
+
+    if (success) {
+      router.push('/');
+    } else {
+      setValidationError('과목 생성 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 font-sans p-4 md:p-8 flex items-center justify-center">
       
@@ -29,7 +67,7 @@ export default function AddSubjectPage() {
         </div>
 
         {/* Form */}
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={onSubmit}>
           
           {/* Subject Name Input */}
           <div className="space-y-1">
@@ -40,6 +78,8 @@ export default function AddSubjectPage() {
               type="text" 
               id="subjectName"
               placeholder="예: 클라우드 컴퓨팅 기초"
+              value={subjectName}
+              onChange={(e) => setSubjectName(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-gray-300 rounded text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
             />
           </div>
@@ -53,6 +93,7 @@ export default function AddSubjectPage() {
               <input 
                 type="file" 
                 accept="image/*"
+                onChange={handleFileSelect}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none border border-gray-300 rounded cursor-pointer bg-white"
               />
               <p className="text-xs text-gray-500 mt-2">
@@ -61,13 +102,20 @@ export default function AddSubjectPage() {
             </div>
           </div>
 
+          {validationError && (
+            <p className="text-red-500 text-sm font-medium pt-1">
+              {validationError}
+            </p>
+          )}
+
           {/* Submit Button */}
           <div className="pt-2">
             <button 
-              type="button" 
-              className="w-full py-2 px-4 border border-transparent rounded text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
+              type="submit" 
+              disabled={isLoading}
+              className="w-full py-2 px-4 border border-transparent rounded text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
             >
-              새로운 과목 생성하기
+              {isLoading ? '처리 중...' : '새로운 과목 생성하기'}
             </button>
           </div>
         </form>
