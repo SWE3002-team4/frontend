@@ -18,3 +18,19 @@ export interface MockExamSession {
   title: string;
   questions: Question[];
 }
+
+export interface QuestionResult {
+  question: Question;
+  userAnswer: any;
+  isCorrect: boolean;
+  explanation: string;
+  keywords: string[];
+}
+
+export interface ReviewResult {
+  attemptId: string;
+  subjectId: string;
+  title: string;
+  finalScore: number;
+  results: QuestionResult[];
+}
