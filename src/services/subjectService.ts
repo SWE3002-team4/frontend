@@ -1,28 +1,7 @@
-import { Subject, CreateSubjectDto, DashboardInfo } from '../types/subject';
+import { apiClient } from './apiClient';
+import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest } from '../types/subject';
 
-// Mock data initialized here so it persists during the session
-let MOCK_SUBJECTS: Subject[] = [
-  {
-    id: '1',
-    title: '소프트웨어공학 개론',
-    progress: 89,
-    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-  {
-    id: '2',
-    title: '컴파일러 원리',
-    progress: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-  {
-    id: '3',
-    title: '데이터베이스 시스템 설계',
-    progress: 65,
-    imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=600&h=400',
-  },
-];
-
-// In-memory store for dashboard info per subject
+// In-memory store for dashboard info per subject (since Dashboard API isn't provided yet)
 const MOCK_DASHBOARDS: Record<string, DashboardInfo> = {
   '1': {
     subjectId: '1',
@@ -81,41 +60,89 @@ class SubjectService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  // 내부 유틸: 백엔드의 SubjectResponse를 프론트엔드의 Subject 모델로 변환
+  private mapResponseToSubject(item: SubjectResponse): Subject {
+    let finalImageUrl = 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400';
+    
+    if (item.thumbnailUrl) {
+      if (item.thumbnailUrl.startsWith('/')) {
+        finalImageUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}${item.thumbnailUrl}`;
+      } else {
+        finalImageUrl = item.thumbnailUrl;
+      }
+    }
+
+    return {
+      id: item.id,
+      title: item.name,
+      progress: 0, // 백엔드에서 아직 progress(달성도)를 반환하지 않으므로 임시로 0 처리
+      imageUrl: finalImageUrl,
+    };
+  }
+
   async getSubjects(): Promise<Subject[]> {
-    console.log('[SubjectService] getSubjects called');
-    await this.delay(500);
-    return [...MOCK_SUBJECTS];
+    const response = await apiClient.get<SubjectResponse[]>('/subjects');
+    return response.data.map(this.mapResponseToSubject);
+  }
+
+  async getSubjectDetail(id: string): Promise<Subject> {
+    const response = await apiClient.get<SubjectResponse>(`/subjects/${id}`);
+    return this.mapResponseToSubject(response.data);
   }
 
   async postSubject(dto: CreateSubjectDto): Promise<Subject> {
-    console.log('[SubjectService] postSubject called with:', dto.title, dto.imageFile?.name);
-    await this.delay(700);
+    let response;
+    
+    // 파일이 있는 경우 multipart/form-data로 전송
+    if (dto.imageFile) {
+      const formData = new FormData();
+      formData.append('name', dto.title);
+      if (dto.description) {
+        formData.append('description', dto.description);
+      }
+      formData.append('thumbnail', dto.imageFile);
+      
+      response = await apiClient.post<SubjectResponse>('/subjects', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // 파일이 없는 경우 application/json으로 전송
+      const body = {
+        name: dto.title,
+        description: dto.description || null,
+      };
+      response = await apiClient.post<SubjectResponse>('/subjects', body);
+    }
+    
+    return this.mapResponseToSubject(response.data);
+  }
 
-    const newId = Math.random().toString(36).substring(7);
-    const newSubject: Subject = {
-      id: newId,
-      title: dto.title,
-      progress: 0,
-      imageUrl: dto.imageFile 
-        ? URL.createObjectURL(dto.imageFile) 
-        : 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400',
-    };
+  async updateSubject(id: string, data: UpdateSubjectRequest): Promise<Subject> {
+    const response = await apiClient.patch<SubjectResponse>(`/subjects/${id}`, data);
+    return this.mapResponseToSubject(response.data);
+  }
 
-    MOCK_SUBJECTS.push(newSubject);
-    return newSubject;
+  async deleteSubject(id: string): Promise<void> {
+    await apiClient.delete(`/subjects/${id}`);
   }
 
   async getDashboardInfo(id: string): Promise<DashboardInfo> {
-    console.log(`[SubjectService] getDashboardInfo called for ID: ${id}`);
-    await this.delay(600);
-
-    // If exist in mock DB, return copy. Else dynamically generate empty dashboard.
+    // If exist in mock DB, return copy.
     if (MOCK_DASHBOARDS[id]) {
+      await this.delay(600);
       return { ...MOCK_DASHBOARDS[id] };
     }
 
-    const foundSubject = MOCK_SUBJECTS.find((s) => s.id === id);
-    const subjectName = foundSubject ? foundSubject.title : '미등록 과목';
+    // 대시보드가 없으면 실제 Subject를 조회하여 과목명 세팅
+    let subjectName = '미등록 과목';
+    try {
+      const subject = await this.getSubjectDetail(id);
+      subjectName = subject.title;
+    } catch (e) {
+      console.warn('Failed to fetch subject details for dashboard', e);
+    }
 
     const newDashboard: DashboardInfo = {
       subjectId: id,
@@ -128,7 +155,6 @@ class SubjectService {
       history: [],
     };
 
-    // Store it so subsequent reads persist state
     MOCK_DASHBOARDS[id] = newDashboard;
     return newDashboard;
   }
