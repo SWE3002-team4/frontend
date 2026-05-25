@@ -1,13 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserProfile, LoginCredentials, RegisterCredentials } from '../types/auth';
 import { authService } from '../services/authService';
+import { useRouter } from 'next/navigation';
+import { getAccessToken } from '../services/apiClient';
 
 export function useAuth() {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const isAuthenticated = user !== null;
+
+  useEffect(() => {
+    const initSession = async () => {
+      const token = getAccessToken();
+      if (token) {
+        try {
+          const currentUser = await authService.getCurrentUser();
+          setUser(currentUser);
+        } catch (err) {
+          console.error('Session restoration failed:', err);
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initSession();
+  }, []);
 
   const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -15,7 +36,7 @@ export function useAuth() {
     try {
       const response = await authService.postLogin(credentials);
       setUser(response.user);
-      console.log('[useAuth] Login successful. Session updated.');
+      router.push('/');
       return true;
     } catch (err) {
       console.error(err);
@@ -32,7 +53,7 @@ export function useAuth() {
     try {
       const response = await authService.postRegister(credentials);
       setUser(response.user);
-      console.log('[useAuth] Registration successful. Session updated.');
+      router.push('/');
       return true;
     } catch (err) {
       console.error(err);
@@ -43,17 +64,31 @@ export function useAuth() {
     }
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (idToken: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const url = await authService.getGoogleAuthUrl();
-      console.log('[useAuth] Redirecting to Google Auth URL:', url);
-      // In a real application, you would redirect the user:
-      // window.location.href = url;
+      const response = await authService.loginWithGoogle(idToken);
+      setUser(response.user);
+      router.push('/');
+      return true;
     } catch (err) {
       console.error(err);
       setError('구글 로그인 진행 중 오류가 발생했습니다.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await authService.logout();
+      setUser(null);
+      router.push('/login');
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -67,5 +102,6 @@ export function useAuth() {
     login,
     register,
     loginWithGoogle,
+    logout,
   };
 }

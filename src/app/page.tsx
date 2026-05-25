@@ -1,12 +1,38 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { SubjectCard } from '../components/SubjectCard';
 import { useSubjects } from '../hooks/useSubjects';
+import { useAuth } from '../hooks/useAuth';
 
 export default function SubjectListPage() {
-  const { subjects, isLoading } = useSubjects();
+  const { subjects, isLoading: isSubjectsLoading } = useSubjects();
+  const { isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-gray-500 font-medium">인증 정보를 확인 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will be redirected
+  }
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <div className="flex-1 w-full min-h-screen bg-gray-100 text-gray-900 font-sans">
@@ -29,12 +55,12 @@ export default function SubjectListPage() {
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </button>
-          <Link 
-            href="/login"
+          <button 
+            onClick={handleLogout}
             className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
           >
             로그아웃
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -43,7 +69,7 @@ export default function SubjectListPage() {
         
         <h2 className="text-xl font-bold mb-4 text-gray-800">내 과목 목록</h2>
         
-        {isLoading ? (
+        {isSubjectsLoading ? (
           <div className="flex items-center justify-center h-40">
             <p className="text-gray-500 font-medium">과목 목록을 불러오는 중...</p>
           </div>
