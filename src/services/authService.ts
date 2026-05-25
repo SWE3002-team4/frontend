@@ -1,4 +1,4 @@
-import { AuthResponse, UserProfile, GoogleLoginRequest, LoginCredentials, RegisterCredentials } from '../types/auth';
+import { AuthResponse, UserProfile, GoogleLoginRequest, LoginCredentials, RegisterCredentials, UpdateUserRequest } from '../types/auth';
 import { apiClient, setTokens, clearTokens } from './apiClient';
 
 class AuthService {
@@ -36,13 +36,6 @@ class AuthService {
   async loginWithGoogle(idToken: string): Promise<AuthResponse> {
     const requestBody: GoogleLoginRequest = { idToken };
     
-    // 백엔드 디버깅용 로그 (개발자 도구 콘솔에서 확인 가능)
-    console.log('======== [백엔드 디버깅용 curl 명령어] ========');
-    console.log(`curl -X POST ${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google \\`);
-    console.log(`  -H "Content-Type: application/json" \\`);
-    console.log(`  -d '{"idToken": "${idToken}"}'`);
-    console.log('=============================================');
-
     try {
       const response = await apiClient.post<AuthResponse>('/auth/google', requestBody);
       const data = response.data;
@@ -58,10 +51,19 @@ class AuthService {
   // --- 공통 인터페이스 ---
   async getCurrentUser(): Promise<UserProfile> {
     try {
-      const response = await apiClient.get<UserProfile>('/auth/me');
+      const response = await apiClient.get<UserProfile>('/users/me');
       return response.data;
     } catch (error) {
       throw new Error('Failed to get current user');
+    }
+  }
+
+  async updateCurrentUser(data: UpdateUserRequest): Promise<UserProfile> {
+    try {
+      const response = await apiClient.patch<UserProfile>('/users/me', data);
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to update current user');
     }
   }
 
