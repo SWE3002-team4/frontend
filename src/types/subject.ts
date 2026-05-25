@@ -5,9 +5,30 @@ export interface Subject {
   imageUrl: string;
 }
 
+export interface SubjectResponse {
+  id: string;
+  name: string;
+  description?: string | null;
+  thumbnailUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateSubjectDto {
   title: string;
+  description?: string;
   imageFile: File | null;
+}
+
+export interface CreateSubjectRequest {
+  name: string;
+  description?: string | null;
+}
+
+export interface UpdateSubjectRequest {
+  name?: string;
+  description?: string;
+  thumbnailUrl?: string | null;
 }
 
 export interface Lecture {
