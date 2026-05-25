@@ -32,3 +32,8 @@ export interface RegisterCredentials {
   email: string;
   password: string;
 }
+
+export interface UpdateUserRequest {
+  name?: string;
+  profileImageUrl?: string;
+}
