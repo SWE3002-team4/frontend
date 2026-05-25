@@ -37,6 +37,18 @@ export function useSubjects() {
     }
   };
 
+  const removeSubject = async (id: string): Promise<boolean> => {
+    try {
+      await subjectService.deleteSubject(id);
+      setSubjects((prev) => prev.filter((s) => s.id !== id));
+      return true;
+    } catch (err) {
+      console.error(err);
+      setError('과목 삭제에 실패했습니다.');
+      return false;
+    }
+  };
+
   // Automatically fetch on mount if you wish, or let the component call fetchSubjects
   useEffect(() => {
     fetchSubjects();
@@ -47,6 +59,7 @@ export function useSubjects() {
     isLoading,
     error,
     addSubject,
+    removeSubject,
     fetchSubjects,
   };
 }

@@ -8,7 +8,7 @@ import { useSubjects } from '../hooks/useSubjects';
 import { useAuth } from '../hooks/useAuth';
 
 export default function SubjectListPage() {
-  const { subjects, isLoading: isSubjectsLoading } = useSubjects();
+  const { subjects, isLoading: isSubjectsLoading, removeSubject } = useSubjects();
   const { isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
   const router = useRouter();
 
@@ -84,6 +84,7 @@ export default function SubjectListPage() {
                 title={subject.title}
                 thumbnail={subject.imageUrl}
                 masteryScore={subject.progress}
+                onDelete={() => removeSubject(subject.id)}
               />
             ))}
 
