@@ -52,12 +52,25 @@ export function useAuth() {
     setError(null);
     try {
       const response = await authService.postRegister(credentials);
-      setUser(response.user);
-      router.push('/');
-      return true;
-    } catch (err) {
+      return response.success;
+    } catch (err: any) {
       console.error(err);
-      setError('회원가입에 실패했습니다.');
+      setError(err.message || '회원가입에 실패했습니다.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const requestRegisterVerificationCode = async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authService.requestRegisterVerificationCode(email);
+      return response.success;
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || '인증번호 발송에 실패했습니다.');
       return false;
     } finally {
       setIsLoading(false);
@@ -99,8 +112,10 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     error,
+    setError,
     login,
     register,
+    requestRegisterVerificationCode,
     loginWithGoogle,
     logout,
   };

@@ -31,9 +31,31 @@ export interface RegisterCredentials {
   name: string;
   email: string;
   password: string;
+  verificationCode: string;
 }
 
 export interface UpdateUserRequest {
   name?: string;
   profileImageUrl?: string;
+}
+
+export interface SuccessResponse {
+  success: boolean;
+}
+
+export interface FindIdRequest {
+  email: string;
+  name: string;
+}
+
+export interface FindIdResponse {
+  found: boolean;
+  email: string | null;
+}
+
+export interface PasswordResetConfirmRequest {
+  email: string;
+  name: string;
+  verificationCode: string;
+  newPassword: string;
 }

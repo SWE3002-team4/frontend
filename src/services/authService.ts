@@ -1,4 +1,4 @@
-import { AuthResponse, UserProfile, GoogleLoginRequest, LoginCredentials, RegisterCredentials, UpdateUserRequest } from '../types/auth';
+import { AuthResponse, UserProfile, GoogleLoginRequest, LoginCredentials, RegisterCredentials, UpdateUserRequest, SuccessResponse, FindIdRequest, FindIdResponse, PasswordResetConfirmRequest } from '../types/auth';
 import { apiClient, setTokens, clearTokens } from './apiClient';
 
 class AuthService {
@@ -18,17 +18,50 @@ class AuthService {
   }
 
   // --- 기존 일반 회원가입 인터페이스 복구 및 연동 ---
-  async postRegister(credentials: RegisterCredentials): Promise<AuthResponse> {
+  async postRegister(credentials: RegisterCredentials): Promise<SuccessResponse> {
     console.log('[AuthService] postRegister request:', credentials);
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/register', credentials);
-      const data = response.data;
-      if (data.accessToken && data.refreshToken) {
-        setTokens(data.accessToken, data.refreshToken);
-      }
-      return data;
+      const response = await apiClient.post<SuccessResponse>('/auth/register', credentials);
+      return response.data;
     } catch (error) {
       throw new Error('회원가입에 실패했습니다.');
+    }
+  }
+
+  // --- 인증 및 찾기 기능 ---
+  async requestRegisterVerificationCode(email: string): Promise<SuccessResponse> {
+    try {
+      const response = await apiClient.post<SuccessResponse>('/auth/register/verification-code', { email });
+      return response.data;
+    } catch (error) {
+      throw new Error('인증번호 발송에 실패했습니다.');
+    }
+  }
+
+  async findId(data: FindIdRequest): Promise<FindIdResponse> {
+    try {
+      const response = await apiClient.post<FindIdResponse>('/auth/find-id', data);
+      return response.data;
+    } catch (error) {
+      throw new Error('아이디 찾기에 실패했습니다.');
+    }
+  }
+
+  async requestPasswordResetCode(data: FindIdRequest): Promise<SuccessResponse> {
+    try {
+      const response = await apiClient.post<SuccessResponse>('/auth/password-reset/verification-code', data);
+      return response.data;
+    } catch (error) {
+      throw new Error('인증번호 발송에 실패했습니다.');
+    }
+  }
+
+  async confirmPasswordReset(data: PasswordResetConfirmRequest): Promise<SuccessResponse> {
+    try {
+      const response = await apiClient.post<SuccessResponse>('/auth/password-reset/confirm', data);
+      return response.data;
+    } catch (error) {
+      throw new Error('비밀번호 재설정에 실패했습니다.');
     }
   }
 
