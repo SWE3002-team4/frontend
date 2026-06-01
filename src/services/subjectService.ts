@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest } from '../types/subject';
+import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest, DocumentMetadataResponse, Lecture } from '../types/subject';
 
 // In-memory store for dashboard info per subject (since Dashboard API isn't provided yet)
 const MOCK_DASHBOARDS: Record<string, DashboardInfo> = {
@@ -129,13 +129,7 @@ class SubjectService {
   }
 
   async getDashboardInfo(id: string): Promise<DashboardInfo> {
-    // If exist in mock DB, return copy.
-    if (MOCK_DASHBOARDS[id]) {
-      await this.delay(600);
-      return { ...MOCK_DASHBOARDS[id] };
-    }
-
-    // 대시보드가 없으면 실제 Subject를 조회하여 과목명 세팅
+    // 1. Fetch Subject Name
     let subjectName = '미등록 과목';
     try {
       const subject = await this.getSubjectDetail(id);
@@ -144,9 +138,20 @@ class SubjectService {
       console.warn('Failed to fetch subject details for dashboard', e);
     }
 
-    const newDashboard: DashboardInfo = {
-      subjectId: id,
-      subjectName: subjectName,
+    // 2. Fetch Document List (Lectures)
+    let lectures: Lecture[] = [];
+    try {
+      const response = await apiClient.get<DocumentMetadataResponse[]>(`/subjects/${id}/documents`);
+      lectures = response.data.map(doc => ({
+        id: doc.documentId,
+        title: doc.title || doc.originalFileName || '제목 없음',
+      }));
+    } catch (e) {
+      console.warn('Failed to fetch documents for dashboard', e);
+    }
+
+    // 3. Fill Dashboard Metrics (Fallback to Mock for now since there's no Dashboard Metric API yet)
+    const mockDash = MOCK_DASHBOARDS[id] || {
       mastery: 0,
       coverage: 0,
       strongKeywords: [],
@@ -155,8 +160,17 @@ class SubjectService {
       history: [],
     };
 
-    MOCK_DASHBOARDS[id] = newDashboard;
-    return newDashboard;
+    return {
+      subjectId: id,
+      subjectName: subjectName,
+      mastery: mockDash.mastery,
+      coverage: mockDash.coverage,
+      strongKeywords: mockDash.strongKeywords,
+      weakKeywords: mockDash.weakKeywords,
+      // If API returns lectures, use them. Otherwise fallback to mock lectures.
+      lectures: lectures.length > 0 ? lectures : (mockDash.lectures || []),
+      history: mockDash.history,
+    };
   }
 }
 

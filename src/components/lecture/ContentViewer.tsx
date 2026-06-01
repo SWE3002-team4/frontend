@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ContentViewerProps {
   viewMode: 'pdf' | 'summary';
@@ -33,8 +34,8 @@ export function ContentViewer({ viewMode, pdfUrl, summaryText }: ContentViewerPr
   const renderSummary = () => {
     return (
       <div className="flex-1 w-full h-full p-8 overflow-y-auto bg-white">
-        <article className="prose prose-slate max-w-none text-left">
-          <ReactMarkdown>{summaryText || '*요약 내용이 없습니다.*'}</ReactMarkdown>
+        <article className="prose prose-slate max-w-none text-left prose-table:w-full prose-th:bg-gray-50 prose-td:border-b prose-th:border-b prose-th:text-gray-700">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryText || '*요약 내용이 없습니다.*'}</ReactMarkdown>
         </article>
       </div>
     );
