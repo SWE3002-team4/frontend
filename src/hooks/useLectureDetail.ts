@@ -22,13 +22,13 @@ export function useLectureDetail(lectureId: string) {
     }
   }, []);
 
-  const postRequestQuiz = async (id: string): Promise<boolean> => {
+  const postRequestQuiz = async (id: string): Promise<string | null> => {
     try {
-      const success = await lectureService.postRequestQuiz(id);
-      return success;
+      const quizId = await lectureService.postRequestQuiz(id);
+      return quizId;
     } catch (err) {
       console.error(err);
-      return false;
+      return null;
     }
   };
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useQuizSession } from '../../../../../../hooks/useQuizSession';
 import { SingleChoiceQuiz } from '../../../../../../components/quiz/SingleChoiceQuiz';
 import { MultipleChoiceQuiz } from '../../../../../../components/quiz/MultipleChoiceQuiz';
@@ -10,8 +10,10 @@ import { ShortAnswerQuiz } from '../../../../../../components/quiz/ShortAnswerQu
 
 export default function QuizPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const subjectId = params.id as string;
   const lectureId = params.lectureId as string;
+  const quizId = searchParams.get('quizId');
 
   const {
     quizDetails,
@@ -25,7 +27,7 @@ export default function QuizPage() {
     saveAnswer,
     handleNext,
     submitAll
-  } = useQuizSession(lectureId);
+  } = useQuizSession(quizId);
 
   if (isLoading) {
     return (
