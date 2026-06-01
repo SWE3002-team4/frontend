@@ -14,7 +14,7 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
   const renderReview = () => {
     if (question.type === 'SINGLE_CHOICE') {
       return question.options?.map((opt, i) => {
-        const isCorrectAnswer = opt === question.options![0]; // In mock, assuming some logic or we can just use the fact it's already graded. Actually, the mock didn't store correct answer separately in QuestionResult, it stores it in question or we just use simple highlighting.
+        const isCorrectAnswer = opt.id === question.options![0].id; // In mock, assuming some logic or we can just use the fact it's already graded. Actually, the mock didn't store correct answer separately in QuestionResult, it stores it in question or we just use simple highlighting.
         // Wait, our Mock data stores correct answer in the question? No, we should rely on what we can. 
         // We will just do a simplified check for the mock presentation.
         // Let's pass the correct/user answer logic cleanly.
@@ -54,14 +54,14 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
         <div className="space-y-2">
            {question.type === 'SINGLE_CHOICE' && question.options?.map((opt, i) => {
              // Mock Data assumption for presentation: if it's correct and user answered this, it's green.
-             const isUserAnswer = userAnswer === opt;
+             const isUserAnswer = userAnswer === opt.id;
              let optClass = "bg-white border border-gray-300 text-gray-700";
              let label = "";
 
              if (isUserAnswer) {
                optClass = isCorrect ? "bg-green-50 border-green-500 text-green-900 font-bold shadow-sm" : "bg-red-50 border-red-500 text-red-900 font-bold shadow-sm";
                label = isCorrect ? "정답" : "오답 선택";
-             } else if (!isCorrect && opt === '피라미드 모델') { // Mock fallback
+             } else if (!isCorrect && opt.text === '피라미드 모델') { // Mock fallback
                optClass = "bg-white border-green-500 text-green-700 font-bold border-dashed";
                label = "정답 (미선택)";
              }
@@ -70,7 +70,7 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
                <div key={i} className={`w-full flex items-center justify-between p-3 rounded transition-colors ${optClass}`}>
                   <div className="flex items-center gap-3">
                      <input type="radio" readOnly checked={isUserAnswer || label.includes('정답')} className="mt-0.5" />
-                     <span className="text-sm">{opt}</span>
+                     <span className="text-sm">{opt.text}</span>
                   </div>
                   {label && <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${label.includes('정답') ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>{label}</span>}
                </div>
@@ -79,7 +79,7 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
 
            {question.type === 'MULTIPLE_CHOICE' && question.options?.map((opt, i) => {
              const userAnsArr = (userAnswer as string[]) || [];
-             const isUserAnswer = userAnsArr.includes(opt);
+             const isUserAnswer = userAnsArr.includes(opt.id);
              
              let optClass = "bg-white border border-gray-300 text-gray-700";
              let label = "";
@@ -87,7 +87,7 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
              if (isUserAnswer) {
                optClass = isCorrect ? "bg-green-50 border-green-500 text-green-900 font-bold shadow-sm" : "bg-red-50 border-red-500 text-red-900 font-bold shadow-sm";
                label = isCorrect ? "정답 (맞춤)" : "오답 선택";
-             } else if (!isCorrect && (opt === '공정이나 도구보다 개인과 상호작용' || opt === '포괄적인 문서보다 정상적으로 작동하는 소프트웨어')) {
+             } else if (!isCorrect && (opt.text === '공정이나 도구보다 개인과 상호작용' || opt.text === '포괄적인 문서보다 정상적으로 작동하는 소프트웨어')) {
                optClass = "bg-white border-green-500 text-green-700 font-bold border-dashed";
                label = "정답 (미선택)";
              }
@@ -96,7 +96,7 @@ export function QuestionResultCard({ questionResult, index, onClick, isActive }:
                <div key={i} className={`w-full flex items-center justify-between p-3 rounded transition-colors ${optClass}`}>
                   <div className="flex items-center gap-3">
                      <input type="checkbox" readOnly checked={isUserAnswer || label.includes('정답')} className="mt-0.5" />
-                     <span className="text-sm">{opt}</span>
+                     <span className="text-sm">{opt.text}</span>
                   </div>
                   {label && <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${label.includes('정답') ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>{label}</span>}
                </div>
