@@ -8,6 +8,7 @@ import { useLectureDetail } from '../../../../../hooks/useLectureDetail';
 import { Sidebar } from '../../../../../components/subject/Sidebar';
 import { ContentViewer } from '../../../../../components/lecture/ContentViewer';
 import { LearningAnalysisPanel } from '../../../../../components/lecture/LearningAnalysisPanel';
+import { lectureService } from '../../../../../services/lectureService';
 
 export default function LectureDetailPage() {
   const params = useParams();
@@ -21,6 +22,55 @@ export default function LectureDetailPage() {
   
   const [viewMode, setViewMode] = useState<'pdf' | 'summary'>('pdf');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'analyzing' | 'error'>('idle');
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+      setUploadError(null);
+    }
+  };
+
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      setUploadError('파일을 선택해주세요.');
+      return;
+    }
+    
+    try {
+      setUploadState('uploading');
+      setUploadError(null);
+      // 1. Upload PDF
+      const uploadRes = await lectureService.uploadDocument(subjectId, selectedFile);
+      
+      // 2. Analyze Document
+      setUploadState('analyzing');
+      await lectureService.analyzeDocument(uploadRes.documentId);
+      
+      // 3. Success, close modal and redirect to lecture detail
+      setIsUploadModalOpen(false);
+      setUploadState('idle');
+      setSelectedFile(null);
+      
+      router.push(`/subject/${subjectId}/lecture/${uploadRes.documentId}`);
+      
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setUploadState('error');
+      setUploadError(err.message || '업로드 및 분석 중 오류가 발생했습니다.');
+    }
+  };
+
+  const closeUploadModal = () => {
+    if (uploadState === 'uploading' || uploadState === 'analyzing') return;
+    setIsUploadModalOpen(false);
+    setUploadState('idle');
+    setSelectedFile(null);
+    setUploadError(null);
+  };
 
   const isLoading = isDashboardLoading || isLectureLoading;
 
@@ -145,22 +195,53 @@ export default function LectureDetailPage() {
       {/* PDF Upload Modal */}
       {isUploadModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
-          <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setIsUploadModalOpen(false)} />
+          <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={closeUploadModal} />
           <div className="relative w-full max-w-lg bg-white border border-gray-200 rounded p-6 shadow-lg z-10 mx-4">
              <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
                 <h3 className="text-lg font-bold text-gray-800">강의자료 업로드</h3>
-                <button onClick={() => setIsUploadModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <button 
+                  onClick={closeUploadModal} 
+                  disabled={uploadState === 'uploading' || uploadState === 'analyzing'}
+                  className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
              </div>
-             <form onSubmit={(e) => { e.preventDefault(); setIsUploadModalOpen(false); }}>
-                <p className="text-sm text-gray-600 mb-4">PDF 형식의 강의 슬라이드, 필기 노트 등을 업로드하세요.</p>
+             <form onSubmit={handleUploadSubmit}>
+                <p className="text-sm text-gray-600 mb-4">PDF 형식의 강의 슬라이드, 필기 노트 등을 업로드하세요.<br/>AI가 즉시 내용을 스캔하여 키워드를 추출하고 맞춤 퀴즈를 준비합니다.</p>
                 <div className="mb-4">
-                   <input type="file" accept="application/pdf" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 bg-gray-50 border border-gray-300 rounded cursor-pointer p-2" />
+                   <input 
+                     type="file" 
+                     accept="application/pdf" 
+                     onChange={handleFileChange}
+                     disabled={uploadState === 'uploading' || uploadState === 'analyzing'}
+                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 bg-gray-50 border border-gray-300 rounded cursor-pointer p-2 disabled:opacity-50" 
+                   />
+                   <p className="text-xs text-gray-500 mt-2">MAX 50MB</p>
+                   {uploadError && <p className="text-sm text-red-500 mt-2">{uploadError}</p>}
                 </div>
                 <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
-                   <button type="button" onClick={() => setIsUploadModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">취소</button>
-                   <button type="submit" className="px-4 py-2 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">업로드 및 AI 분석</button>
+                   <button 
+                     type="button" 
+                     onClick={closeUploadModal} 
+                     disabled={uploadState === 'uploading' || uploadState === 'analyzing'}
+                     className="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                   >
+                     취소
+                   </button>
+                   <button 
+                     type="submit" 
+                     disabled={uploadState === 'uploading' || uploadState === 'analyzing' || !selectedFile}
+                     className="px-4 py-2 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                   >
+                     {uploadState === 'uploading' && (
+                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                     )}
+                     {uploadState === 'analyzing' && (
+                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                     )}
+                     {uploadState === 'uploading' ? '업로드 중...' : uploadState === 'analyzing' ? 'AI 분석 중...' : '업로드 및 AI 분석'}
+                   </button>
                 </div>
              </form>
           </div>

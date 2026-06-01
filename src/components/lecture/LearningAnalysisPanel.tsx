@@ -78,7 +78,7 @@ export function LearningAnalysisPanel({
 
       <div className="p-6 space-y-6">
         {/* Keywords */}
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-y-auto max-h-[220px] pr-2">
           <div className="flex items-start gap-2 flex-col">
             <span className="text-xs font-bold text-gray-500 uppercase">강한 키워드</span>
             {strongKeywords.length === 0 ? (

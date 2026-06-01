@@ -65,3 +65,42 @@ export interface LectureDetail {
   masteryScore: number;
   coverageScore: number;
 }
+
+// Document API DTOs
+export interface UploadDocumentResponse {
+  documentId: string;
+  fileUrl: string;
+  pageCount: number;
+  analysisStatus: 'UPLOADED' | 'PROCESSING' | 'ANALYZED' | 'FAILED';
+  canAnalyze: boolean;
+}
+
+export interface DocumentKeyword {
+  id: string;
+  name: string;
+  importanceScore: number;
+}
+
+export interface DocumentDetailResponse {
+  documentId: string;
+  subjectId?: string;
+  title?: string;
+  fileUrl: string;
+  pageCount: number;
+  analysisStatus: 'UPLOADED' | 'PROCESSING' | 'ANALYZED' | 'FAILED';
+  overallSummary: string;
+  keywordCount?: number;
+  keywords: DocumentKeyword[];
+}
+
+export interface DocumentMetadataResponse {
+  documentId: string;
+  subjectId?: string | null;
+  title?: string | null;
+  originalFileName?: string | null;
+  fileUrl: string;
+  pageCount: number;
+  analysisStatus: 'UPLOADED' | 'PROCESSING' | 'ANALYZED' | 'FAILED';
+  createdAt: string;
+  updatedAt: string;
+}
