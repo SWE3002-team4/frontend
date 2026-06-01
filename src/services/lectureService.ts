@@ -1,4 +1,5 @@
 import { LectureDetail, UploadDocumentResponse, DocumentDetailResponse } from '../types/subject';
+import { CreateQuizResponseDto } from '../types/quiz';
 import { apiClient } from './apiClient';
 
 // Persisted Mock lecture details map
@@ -137,11 +138,17 @@ class LectureService {
     }
   }
 
-  async postRequestQuiz(id: string): Promise<boolean> {
-    console.log(`[LectureService] postRequestQuiz called for lecture ID: ${id}`);
-    await this.delay(600);
-    // Mimics backend quiz generation
-    return true;
+  async postRequestQuiz(id: string): Promise<string | null> {
+    console.log(`[LectureService] postRequestQuiz called for document ID: ${id}`);
+    try {
+      const response = await apiClient.post<CreateQuizResponseDto>(`/documents/${id}/quiz`, {
+        quizProblemCount: 15,
+      });
+      return response.data.quizId;
+    } catch (error) {
+      console.error('[LectureService] Failed to create quiz:', error);
+      return null;
+    }
   }
 }
 

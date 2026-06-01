@@ -123,10 +123,12 @@ export default function LectureDetailPage() {
 
   const handleStartQuiz = async () => {
     console.log(`[LectureDetailPage] handleStartQuiz called for lecture ID: ${lectureId}`);
-    const success = await postRequestQuiz(lectureId);
-    if (success) {
+    const quizId = await postRequestQuiz(lectureId);
+    if (quizId) {
       // Navigate to the newly created Quiz Taking Page
-      router.push(`/subject/${subjectId}/lecture/${lectureId}/quiz`);
+      router.push(`/subject/${subjectId}/lecture/${lectureId}/quiz?quizId=${quizId}`);
+    } else {
+      alert('퀴즈 생성에 실패했습니다. 문서가 분석 완료 상태인지 확인해주세요.');
     }
   };
 
