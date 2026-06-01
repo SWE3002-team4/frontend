@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { Question, QuizDetails } from '../types/quiz';
 import { quizService } from '../services/quizService';
 
-export function useQuizSession(lectureId: string) {
+export function useQuizSession(quizId: string | null) {
   const router = useRouter();
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -13,9 +13,13 @@ export function useQuizSession(lectureId: string) {
 
   useEffect(() => {
     async function loadQuiz() {
+      if (!quizId) {
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
-        const data = await quizService.getQuizDetails(lectureId);
+        const data = await quizService.getQuizDetails(quizId);
         setQuizDetails(data);
       } catch (error) {
         console.error('Failed to load quiz:', error);
@@ -24,7 +28,7 @@ export function useQuizSession(lectureId: string) {
       }
     }
     loadQuiz();
-  }, [lectureId]);
+  }, [quizId]);
 
   const saveAnswer = (questionId: string, value: any) => {
     setUserAnswers(prev => ({
