@@ -25,6 +25,7 @@ export default function LectureDetailPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'analyzing' | 'error'>('idle');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -122,12 +123,14 @@ export default function LectureDetailPage() {
   };
 
   const handleStartQuiz = async () => {
+    setIsGeneratingQuiz(true);
     console.log(`[LectureDetailPage] handleStartQuiz called for lecture ID: ${lectureId}`);
     const quizId = await postRequestQuiz(lectureId);
     if (quizId) {
       // Navigate to the newly created Quiz Taking Page
       router.push(`/subject/${subjectId}/lecture/${lectureId}/quiz?quizId=${quizId}`);
     } else {
+      setIsGeneratingQuiz(false);
       alert('퀴즈 생성에 실패했습니다. 문서가 분석 완료 상태인지 확인해주세요.');
     }
   };
@@ -245,10 +248,20 @@ export default function LectureDetailPage() {
                      {uploadState === 'uploading' ? '업로드 중...' : uploadState === 'analyzing' ? 'AI 분석 중...' : '업로드 및 AI 분석'}
                    </button>
                 </div>
-             </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+              </form>
+           </div>
+         </div>
+       )}
+
+       {/* Quiz Generation Overlay */}
+       {isGeneratingQuiz && (
+         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+           <div className="flex flex-col items-center gap-4 bg-white p-8 rounded shadow-lg">
+             <div className="w-10 h-10 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+             <p className="text-sm font-bold text-gray-700 animate-pulse">AI가 맞춤형 퀴즈를 생성하고 있습니다...</p>
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }
