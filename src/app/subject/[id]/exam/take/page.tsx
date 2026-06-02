@@ -70,8 +70,8 @@ export default function MockExamTakePage() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log('[MockExamTakePage] Submitted Answers:', userAnswers);
     
-    // 성공 시 임시로 기존 리뷰 페이지로 이동 (id = 1)
-    router.push(`/exam/1/review`);
+    alert('모의고사가 제출되었습니다. (현재 프론트엔드 시뮬레이션 상태입니다.)');
+    router.push(`/subject/${subjectId}`);
   };
 
   // Type Handlers
