@@ -25,6 +25,8 @@ export interface QuestionResult {
   isCorrect: boolean;
   explanation: string;
   keywords: string[];
+  correctAnswer: string;
+  choices?: { id: string; choiceText: string; isCorrect: boolean }[];
 }
 
 export interface ReviewResult {
