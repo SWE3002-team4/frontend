@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Question, QuizDetails } from '../types/quiz';
 import { quizService } from '../services/quizService';
 import { quizAttemptService } from '../services/quizAttemptService';
@@ -7,6 +7,7 @@ import { SubmitAnswerDto } from '../types/quizAttempt';
 
 export function useQuizSession(quizId: string | null) {
   const router = useRouter();
+  const pathname = usePathname();
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -92,7 +93,8 @@ export function useQuizSession(quizId: string | null) {
       await quizAttemptService.submitAttempt(attemptId);
       
       // 발급받은 UUID attemptId를 사용하여 실제 리뷰 페이지로 이동
-      router.push(`/exam/${attemptId}/review`);
+      const returnUrl = pathname.replace('/quiz', ''); // 퀴즈 페이지 경로를 제거하여 상위 문서(lecture) 경로 획득
+      router.push(`/exam/${attemptId}/review?returnUrl=${returnUrl}`);
     } catch (error) {
       console.error('Failed to submit quiz:', error);
       alert('최종 제출 중 오류가 발생했습니다.');
