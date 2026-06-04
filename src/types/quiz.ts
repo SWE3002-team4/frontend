@@ -63,3 +63,22 @@ export interface QuizSolvingViewResponseDto {
   quizType: QuizType;
   quizProblems: QuizSolvingProblemDto[];
 }
+
+export interface DocumentQuizAttempt {
+  attemptId: string;
+  status: 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
+  startedAt: string;
+  submittedAt: string | null;
+  totalQuizProblems: number;
+  correctCount: number | null;
+  score: number | null;
+}
+
+export interface DocumentQuizResponseDto {
+  quizId: string;
+  title: string;
+  quizType: QuizType;
+  quizProblemCount: number;
+  createdAt: string;
+  latestAttempt: DocumentQuizAttempt | null;
+}

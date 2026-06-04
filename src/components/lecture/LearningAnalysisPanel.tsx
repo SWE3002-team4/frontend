@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { DocumentQuizResponseDto } from '../../types/quiz';
 
 interface LearningAnalysisPanelProps {
   strongKeywords: string[];
   weakKeywords: string[];
   masteryScore: number;
   coverageScore: number;
+  previousQuizzes?: DocumentQuizResponseDto[];
   onStartQuiz: () => void;
 }
 
@@ -44,9 +48,12 @@ export function LearningAnalysisPanel({
   weakKeywords, 
   masteryScore, 
   coverageScore, 
+  previousQuizzes = [],
   onStartQuiz 
 }: LearningAnalysisPanelProps) {
   const [isFloatingOpen, setIsFloatingOpen] = useState(true);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div 
@@ -76,9 +83,9 @@ export function LearningAnalysisPanel({
         </svg>
       </button>
 
-      <div className="p-6 space-y-6">
+      <div className="p-5 space-y-4">
         {/* Keywords */}
-        <div className="space-y-3 overflow-y-auto max-h-[220px] pr-2">
+        <div className="space-y-2 overflow-y-auto max-h-[80px] pr-2">
           <div className="flex items-start gap-2 flex-col">
             <span className="text-xs font-bold text-gray-500 uppercase">강한 키워드</span>
             {strongKeywords.length === 0 ? (
@@ -128,6 +135,51 @@ export function LearningAnalysisPanel({
             </button>
           </div>
         </div>
+
+        {/* Previous Quizzes List */}
+        {previousQuizzes.length > 0 && (
+          <>
+            <hr className="border-gray-200" />
+            <div className="space-y-3">
+              <button 
+                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                className="w-full flex items-center justify-between text-xs font-bold text-gray-500 uppercase hover:text-gray-700 transition-colors"
+              >
+                <span>이전 퀴즈 내역 ({previousQuizzes.length})</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-300 ${isHistoryOpen ? 'rotate-180' : ''}`}>
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              
+              {isHistoryOpen && (
+                <div className="max-h-[140px] overflow-y-auto space-y-2 pr-2 animate-in slide-in-from-top-2 fade-in duration-200">
+                  {previousQuizzes.map((quiz) => (
+                    <Link
+                      key={quiz.quizId}
+                      href={quiz.latestAttempt ? `/exam/${quiz.latestAttempt.attemptId}/review?returnUrl=${pathname}` : '#'}
+                      className={`block border border-gray-200 rounded p-3 hover:bg-gray-50 transition-colors ${!quiz.latestAttempt ? 'pointer-events-none opacity-50' : ''}`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-bold text-gray-800">{quiz.title}</span>
+                        <span className="text-xs font-bold text-blue-600">
+                          {quiz.latestAttempt?.score !== null && quiz.latestAttempt?.score !== undefined ? `${quiz.latestAttempt.score}점` : '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>{new Date(quiz.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          {quiz.latestAttempt?.status === 'GRADED' ? '채점 완료' :
+                           quiz.latestAttempt?.status === 'SUBMITTED' ? '제출 완료' : 
+                           quiz.latestAttempt?.status === 'IN_PROGRESS' ? '진행 중' : '-'}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

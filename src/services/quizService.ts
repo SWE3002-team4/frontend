@@ -1,4 +1,4 @@
-import { QuizDetails, QuizSolvingViewResponseDto, Question, Difficulty } from '../types/quiz';
+import { QuizDetails, QuizSolvingViewResponseDto, Question, Difficulty, DocumentQuizResponseDto } from '../types/quiz';
 import { apiClient } from './apiClient';
 
 class QuizService {
@@ -36,6 +36,11 @@ class QuizService {
     await new Promise(resolve => setTimeout(resolve, 500));
     console.log('[QuizService] Submitted answers:', data);
     return true;
+  }
+
+  async getDocumentQuizzes(documentId: string): Promise<DocumentQuizResponseDto[]> {
+    const response = await apiClient.get<DocumentQuizResponseDto[]>(`/documents/${documentId}/quiz`);
+    return response.data;
   }
 }
 

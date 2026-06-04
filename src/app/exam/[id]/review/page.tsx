@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useExamReview } from '../../../../hooks/useExamReview';
 import { ReviewHeader } from '../../../../components/exam/ReviewHeader';
 import { QuestionResultCard } from '../../../../components/exam/QuestionResultCard';
 
 export default function ExamReviewPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const attemptId = params.id as string;
+  const returnUrl = searchParams.get('returnUrl');
+  
   const { reviewData, isLoading } = useExamReview(attemptId);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
 
@@ -31,6 +34,7 @@ export default function ExamReviewPage() {
         finalScore={reviewData.finalScore}
         subjectTitle={reviewData.title}
         subjectId={reviewData.subjectId}
+        returnUrl={returnUrl}
       />
 
       {/* Main Content Area */}

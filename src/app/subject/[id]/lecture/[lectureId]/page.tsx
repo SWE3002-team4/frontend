@@ -18,7 +18,7 @@ export default function LectureDetailPage() {
   const lectureId = params.lectureId as string;
 
   const { dashboardData, isLoading: isDashboardLoading } = useSubjectDashboard(subjectId);
-  const { lectureData, isLoading: isLectureLoading, error, postRequestQuiz } = useLectureDetail(lectureId);
+  const { lectureData, previousQuizzes, isLoading: isLectureLoading, error, postRequestQuiz } = useLectureDetail(lectureId);
   
   const [viewMode, setViewMode] = useState<'pdf' | 'summary'>('pdf');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -191,6 +191,7 @@ export default function LectureDetailPage() {
             weakKeywords={lectureData.weakKeywords}
             masteryScore={lectureData.masteryScore}
             coverageScore={lectureData.coverageScore}
+            previousQuizzes={previousQuizzes}
             onStartQuiz={handleStartQuiz}
           />
 
