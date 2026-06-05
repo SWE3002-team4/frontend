@@ -1,84 +1,67 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { MockExamSession } from '../../../../../types/exam';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useQuizSession } from '../../../../../hooks/useQuizSession';
 import { SingleChoiceQuiz } from '../../../../../components/quiz/SingleChoiceQuiz';
 import { MultipleChoiceQuiz } from '../../../../../components/quiz/MultipleChoiceQuiz';
 import { ShortAnswerQuiz } from '../../../../../components/quiz/ShortAnswerQuiz';
 
 export default function MockExamTakePage() {
   const params = useParams();
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const subjectId = params.id as string;
+  const quizId = searchParams.get('quizId');
 
-  const [examSession, setExamSession] = useState<MockExamSession | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    quizDetails,
+    currentQuestion,
+    currentIndex,
+    totalQuestions,
+    userAnswers,
+    isLastQuestion,
+    isLoading,
+    isSubmitting,
+    saveAnswer,
+    handleNext,
+    submitAll
+  } = useQuizSession(quizId, `/subject/${subjectId}`); // Pass customReturnUrl to return to dashboard
 
-  useEffect(() => {
-    // Read from sessionStorage
-    const stored = sessionStorage.getItem('MOCK_EXAM_SESSION');
-    if (stored) {
-      try {
-        setExamSession(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse mock exam session', e);
-      }
-    }
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+          <p className="text-sm font-bold text-gray-500 animate-pulse">모의고사를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (!examSession) {
+  if (!quizDetails || !currentQuestion) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans p-6 text-center">
          <div className="max-w-md bg-white border border-gray-200 rounded p-8 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">세션 만료</h3>
-            <p className="text-sm text-gray-500 mb-6">진행 중인 모의고사 데이터를 찾을 수 없습니다.</p>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">문제가 없습니다</h3>
+            <p className="text-sm text-gray-500 mb-6">모의고사 데이터를 찾을 수 없습니다.</p>
             <Link 
-              href={`/subject/${subjectId}/exam/setup`} 
+              href={`/subject/${subjectId}`} 
               className="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
             >
-              모의고사 다시 생성하기
+              대시보드로 돌아가기
             </Link>
          </div>
       </div>
     );
   }
 
-  const currentQuestion = examSession.questions[currentIndex];
-  const totalQuestions = examSession.questions.length;
-  const isLastQuestion = currentIndex === totalQuestions - 1;
-
-  const saveAnswer = (questionId: string, value: any) => {
-    setUserAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
-  };
-
-  const handleNext = () => {
-    if (currentIndex < totalQuestions - 1) {
-      setCurrentIndex(prev => prev + 1);
-    }
-  };
-
-  const submitAll = async () => {
-    setIsSubmitting(true);
-    // API Submit 모방 (1초 대기)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('[MockExamTakePage] Submitted Answers:', userAnswers);
-    
-    alert('모의고사가 제출되었습니다. (현재 프론트엔드 시뮬레이션 상태입니다.)');
-    router.push(`/subject/${subjectId}`);
-  };
-
-  // Type Handlers
+  // Handle single choice selection
   const handleSingleChoiceSelect = (opt: string) => {
     saveAnswer(currentQuestion.id, opt);
   };
 
+  // Handle multiple choice toggle
   const handleMultipleChoiceToggle = (opt: string) => {
     const currentSelected = (userAnswers[currentQuestion.id] as string[]) || [];
     if (currentSelected.includes(opt)) {
@@ -88,11 +71,12 @@ export default function MockExamTakePage() {
     }
   };
 
+  // Handle short answer input
   const handleShortAnswerChange = (text: string) => {
     saveAnswer(currentQuestion.id, text);
   };
 
-  // Badge Color
+  // Difficulty badge coloring
   let diffBadge = null;
   if (currentQuestion.difficulty === 'HIGH') diffBadge = <span className="px-2 py-0.5 text-[11px] font-bold rounded bg-rose-100 text-rose-800">상</span>;
   else if (currentQuestion.difficulty === 'MEDIUM') diffBadge = <span className="px-2 py-0.5 text-[11px] font-bold rounded bg-yellow-100 text-yellow-800">중</span>;
@@ -100,10 +84,11 @@ export default function MockExamTakePage() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 font-sans flex flex-col items-center py-10 px-4">
+      
       <div className="w-full max-w-2xl bg-white border border-gray-200 rounded shadow-sm overflow-hidden flex flex-col">
          {/* Quiz Header */}
          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-            <h1 className="text-base font-bold text-gray-800">{examSession.title}</h1>
+            <h1 className="text-base font-bold text-gray-800">{quizDetails.title}</h1>
             <div className="text-sm font-bold text-gray-500">
               <span className="text-blue-600">{currentIndex + 1}</span> / {totalQuestions}
             </div>
@@ -189,6 +174,7 @@ export default function MockExamTakePage() {
          </div>
 
       </div>
+
     </div>
   );
 }

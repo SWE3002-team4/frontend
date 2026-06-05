@@ -5,7 +5,7 @@ import { quizService } from '../services/quizService';
 import { quizAttemptService } from '../services/quizAttemptService';
 import { SubmitAnswerDto } from '../types/quizAttempt';
 
-export function useQuizSession(quizId: string | null) {
+export function useQuizSession(quizId: string | null, customReturnUrl?: string) {
   const router = useRouter();
   const pathname = usePathname();
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
@@ -60,10 +60,28 @@ export function useQuizSession(quizId: string | null) {
     await quizAttemptService.submitAnswer(attemptId, dto);
   };
 
+  const validateAnswer = (question: Question, answer: any): boolean => {
+    if (question.type === 'MULTIPLE_CHOICE') {
+      if (!answer || (Array.isArray(answer) && answer.length === 0)) {
+        return false;
+      }
+    } else {
+      if (answer === undefined || answer === null || String(answer).trim() === '') {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleNext = async () => {
     if (!quizDetails || !attemptId) return;
     const currentQuestion = quizDetails.questions[currentIndex];
     const answer = userAnswers[currentQuestion.id];
+
+    if (!validateAnswer(currentQuestion, answer)) {
+      alert('정답을 입력해주세요.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -81,19 +99,26 @@ export function useQuizSession(quizId: string | null) {
 
   const submitAll = async () => {
     if (!quizDetails || !attemptId) return;
+    
+    const currentQuestion = quizDetails.questions[currentIndex];
+    const answer = userAnswers[currentQuestion.id];
+
+    if (!validateAnswer(currentQuestion, answer)) {
+      alert('정답을 입력해주세요.');
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
       // 마지막 문제 답안 제출
-      const currentQuestion = quizDetails.questions[currentIndex];
-      const answer = userAnswers[currentQuestion.id];
       await submitCurrentAnswer(currentQuestion, answer);
 
       // 백엔드 API: 최종 제출
       await quizAttemptService.submitAttempt(attemptId);
       
       // 발급받은 UUID attemptId를 사용하여 실제 리뷰 페이지로 이동
-      const returnUrl = pathname.replace('/quiz', ''); // 퀴즈 페이지 경로를 제거하여 상위 문서(lecture) 경로 획득
+      const returnUrl = customReturnUrl || pathname.replace('/quiz', ''); // 퀴즈 페이지 경로를 제거하여 상위 문서(lecture) 경로 획득
       router.push(`/exam/${attemptId}/review?returnUrl=${returnUrl}`);
     } catch (error) {
       console.error('Failed to submit quiz:', error);
