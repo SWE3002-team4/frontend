@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient';
 import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest, DocumentMetadataResponse, Lecture } from '../types/subject';
+import { SubjectMasteryResponse } from '../types/mastery';
 
 // MOCK_DASHBOARDS 제거됨
 
@@ -28,14 +29,40 @@ class SubjectService {
     };
   }
 
+  async getSubjectMastery(id: string): Promise<SubjectMasteryResponse> {
+    const response = await apiClient.get<SubjectMasteryResponse>(`/subjects/${id}/mastery`);
+    return response.data;
+  }
+
   async getSubjects(): Promise<Subject[]> {
     const response = await apiClient.get<SubjectResponse[]>('/subjects');
-    return response.data.map(this.mapResponseToSubject);
+    const subjects = response.data.map(item => this.mapResponseToSubject(item));
+    
+    // Fetch mastery for all subjects
+    const subjectsWithMastery = await Promise.all(
+      subjects.map(async (subject) => {
+        try {
+          const masteryRes = await this.getSubjectMastery(subject.id);
+          subject.progress = Math.round(masteryRes.overallMastery * 100);
+        } catch (e) {
+          console.warn(`Failed to fetch mastery for subject ${subject.id}`, e);
+        }
+        return subject;
+      })
+    );
+    return subjectsWithMastery;
   }
 
   async getSubjectDetail(id: string): Promise<Subject> {
     const response = await apiClient.get<SubjectResponse>(`/subjects/${id}`);
-    return this.mapResponseToSubject(response.data);
+    const subject = this.mapResponseToSubject(response.data);
+    try {
+      const masteryRes = await this.getSubjectMastery(id);
+      subject.progress = Math.round(masteryRes.overallMastery * 100);
+    } catch (e) {
+      console.warn(`Failed to fetch mastery for subject ${id}`, e);
+    }
+    return subject;
   }
 
   async postSubject(dto: CreateSubjectDto): Promise<Subject> {
@@ -98,14 +125,22 @@ class SubjectService {
       console.warn('Failed to fetch documents for dashboard', e);
     }
 
-    // 3. Fill Dashboard Metrics (API 연결 전까지 기본값)
+    // 3. Fetch Mastery
+    let masteryData: SubjectMasteryResponse | null = null;
+    try {
+      masteryData = await this.getSubjectMastery(id);
+    } catch (e) {
+      console.warn('Failed to fetch mastery for dashboard', e);
+    }
+
+    // 4. Fill Dashboard Metrics
     return {
       subjectId: id,
       subjectName: subjectName,
-      mastery: 0,
+      mastery: masteryData ? Math.round(masteryData.overallMastery * 100) : 0,
       coverage: 0,
-      strongKeywords: [],
-      weakKeywords: [],
+      strongKeywords: masteryData ? masteryData.strongKeywords.map(k => k.name) : [],
+      weakKeywords: masteryData ? masteryData.weakKeywords.map(k => k.name) : [],
       lectures: lectures,
       history: [],
     };

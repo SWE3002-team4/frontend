@@ -17,17 +17,14 @@ export interface QuizAttemptStartResponseDto {
   status: AttemptStatus;
 }
 
-export interface UpdatedMasteryItemDto {
-  keywordId: string;
-  masteryScore: number;
-}
+import { UpdatedMasteryItem } from './mastery';
 
 export interface SubmitAnswerResponseDto {
   quizProblemId: string;
   isCorrect: boolean;
   explanation?: string;
   feedback?: string;
-  updatedMastery: UpdatedMasteryItemDto[];
+  updatedMastery: UpdatedMasteryItem[];
   selectedChoiceIds?: string[];
 }
 
