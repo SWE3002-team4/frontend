@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 프로젝트 설명
+ SudoCampus는 학습자가 업로드한 강의자료를요약해주고,지속적으로퀴즈이력을저장
+하며, 학습상태를업데이트하여사용자맞춤형퀴즈를제공하는것을목표로한다.
 
-## Getting Started
+ 대학생이 중간고사나 기말고사를 준비할 때는 강의자료를 복습하고, 이후 자신이 부
+족한 개념을중심으로다시공부하는과정이필요하다.기존의AI학습도구는사용자가
+학습자료PDF를업로드하면요약본이나퀴즈를제공할수있지만,학습자가어느개념을
+잘 이해하고있고어느개념에취약한지지속적으로파악하기는어렵다.또한이전풀이
+결과를기반으로사용자별맞춤형문제를제공하는데에는한계가있다.
 
-First, run the development server:
+ SudoCampus는 이러한 한계를 해결하기위해단순한강의자료요약기능을넘어,사용
+자의학습상태를키워드단위로관리한다.시스템은학습자의퀴즈풀이이력을데이터베
+이스에 저장하고, 각 키워드에 대한mastery를 지속적으로 업데이트한다. 이를 바탕으로
+학습자의취약개념과강한개념을구분하고,부족한개념을중심으로퀴즈와모의고사를
+제공함으로써더효율적인시험준비를지원한다.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 프로젝트 폴더 구조 (Project Tree)
+
+```text
+frontend/
+├── public/               # NextJs 기본 이미지 등
+└── src/                  # 메인 폴더
+    ├── app/              # 라우팅 
+    │   ├── exam/         # 모의고사 관련 페이지
+    │   ├── login/        # 로그인 페이지
+    │   ├── new/          # 과목 생성 페이지
+    │   └── subject/      # 과목 상세 페이지
+    ├── components/       # 공통 컴포넌트 폴더
+    │   ├── exam/         # 모의고사 UI components
+    │   ├── lecture/      # 강의 UI components
+    │   ├── quiz/         # 퀴즈 UI components
+    │   ├── subject/      # 과목 UI components
+    │   └── ui/           # 공통 UI components
+    ├── hooks/            # 커스텀 훅 폴더
+    ├── services/         # 외부 API 통신을 위한 서비스
+    └── types/            # 타입 정의
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
