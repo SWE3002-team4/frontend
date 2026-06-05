@@ -11,6 +11,8 @@ import { MockExamCard } from '../../../components/subject/MockExamCard';
 import { lectureService } from '../../../services/lectureService';
 import { Spinner } from '../../../components/ui/Spinner';
 
+const MAX_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024; // backend ParseFilePipe와 동일한 50MB 제한
+
 export default function SubjectDashboardPage() {
   const params = useParams();
   const router = useRouter();
@@ -24,7 +26,14 @@ export default function SubjectDashboardPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        setSelectedFile(null);
+        setUploadError('파일 크기는 최대 50MB까지 업로드할 수 있습니다.');
+        e.target.value = '';
+        return;
+      }
+      setSelectedFile(file);
       setUploadError(null);
     }
   };

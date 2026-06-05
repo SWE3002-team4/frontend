@@ -12,6 +12,8 @@ import { useToast } from '../../../../../contexts/ToastContext';
 import { Spinner } from '../../../../../components/ui/Spinner';
 import { lectureService } from '../../../../../services/lectureService';
 
+const MAX_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024; // backend ParseFilePipe와 동일한 50MB 제한
+
 export default function LectureDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -32,7 +34,14 @@ export default function LectureDetailPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        setSelectedFile(null);
+        setUploadError('파일 크기는 최대 50MB까지 업로드할 수 있습니다.');
+        e.target.value = '';
+        return;
+      }
+      setSelectedFile(file);
       setUploadError(null);
     }
   };
