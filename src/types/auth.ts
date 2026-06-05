@@ -9,7 +9,7 @@ export interface UserProfile {
 
 export interface AuthResponse {
   user: UserProfile;
-  token?: string; // For backward compatibility if needed anywhere
+  token?: string; // 예전 코드 터질까봐 일단 냅둠
   accessToken?: string;
   refreshToken?: string;
 }

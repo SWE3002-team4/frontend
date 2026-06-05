@@ -59,12 +59,12 @@ class LectureService {
         weakKeywords = ls.weakKeywords.map(k => k.name);
       } catch (err) {
         console.warn('Failed to fetch learning status for document', err);
-        // Fallback
+        // fallback
         strongKeywords = (doc.keywords || []).filter(k => k.importanceScore >= 0.8).map(k => k.name);
         weakKeywords = (doc.keywords || []).filter(k => k.importanceScore < 0.8).map(k => k.name);
       }
       
-      // Convert to LectureDetail format expected by frontend
+      // 화면에 뿌려주기 위함
       return {
         materialId: doc.documentId,
         title: doc.title || '강의 자료',
@@ -78,7 +78,7 @@ class LectureService {
     } catch (error) {
       console.warn('Failed to fetch from API:', error);
 
-      // Default return for newly created/other lectures
+      // 아직 분석 덜 된 애들은 빈 껍데기만
       const defaultLecture: LectureDetail = {
         materialId: id,
         title: `${id}강: 신규 학습자료 및 분석`,

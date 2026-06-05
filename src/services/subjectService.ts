@@ -11,7 +11,7 @@ class SubjectService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  // 내부 유틸: 백엔드의 SubjectResponse를 프론트엔드의 Subject 모델로 변환
+  // 백엔드 응답을 프론트 뷰모델로 변환함
   private mapResponseToSubject(item: SubjectResponse): Subject {
     let finalImageUrl = 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400';
     
@@ -26,7 +26,7 @@ class SubjectService {
     return {
       id: item.id,
       title: item.name,
-      progress: 0, // 백엔드에서 아직 progress(달성도)를 반환하지 않으므로 임시로 0 처리
+      progress: 0, // 일단 0으로
       imageUrl: finalImageUrl,
     };
   }
@@ -40,7 +40,7 @@ class SubjectService {
     const response = await apiClient.get<SubjectResponse[]>('/subjects');
     const subjects = response.data.map(item => this.mapResponseToSubject(item));
     
-    // Fetch learning status for all subjects
+    // 각 과목별로 학습 상태도 긁어오기
     const subjectsWithProgress = await Promise.all(
       subjects.map(async (subject) => {
         try {
@@ -70,7 +70,7 @@ class SubjectService {
   async postSubject(dto: CreateSubjectDto): Promise<Subject> {
     let response;
     
-    // 파일이 있는 경우 multipart/form-data로 전송
+    // 이미지 있으면 폼데이터로 쏨
     if (dto.imageFile) {
       const formData = new FormData();
       formData.append('name', dto.title);
@@ -85,7 +85,7 @@ class SubjectService {
         },
       });
     } else {
-      // 파일이 없는 경우 application/json으로 전송
+      // 이미지 없으면 걍 json으로 넘김
       const body = {
         name: dto.title,
         description: dto.description || null,
@@ -106,7 +106,7 @@ class SubjectService {
   }
 
   async getDashboardInfo(id: string): Promise<DashboardInfo> {
-    // 1. Fetch Subject Name
+    // 1. 과목명 땡겨오기
     let subjectName = '미등록 과목';
     try {
       const subject = await this.getSubjectDetail(id);
@@ -115,7 +115,7 @@ class SubjectService {
       console.warn('Failed to fetch subject details for dashboard', e);
     }
 
-    // 2. Fetch Document List (Lectures)
+    // 2. 강의 목록(문서들) 가져오기
     let lectures: Lecture[] = [];
     try {
       const response = await apiClient.get<DocumentMetadataResponse[]>(`/subjects/${id}/documents`);
@@ -127,7 +127,7 @@ class SubjectService {
       console.warn('Failed to fetch documents for dashboard', e);
     }
 
-    // 3. Fetch Learning Status
+    // 3. 현재 학습 상태 체크
     let statusData: SubjectLearningStatusResponse | null = null;
     try {
       statusData = await this.getSubjectLearningStatus(id);
@@ -135,7 +135,7 @@ class SubjectService {
       console.warn('Failed to fetch learning status for dashboard', e);
     }
 
-    // 4. Fetch Mock Exams History
+    // 4. 모의고사 봤던 기록 가져오기
     let mockExams: MockExamListItem[] = [];
     try {
       mockExams = await examService.getSubjectMockExams(id);
@@ -143,7 +143,7 @@ class SubjectService {
       console.warn('Failed to fetch mock exams for dashboard', e);
     }
 
-    // 5. Fill Dashboard Metrics
+    // 5. 모은 데이터로 대시보드 화면 채워주기
     return {
       subjectId: id,
       subjectName: subjectName,

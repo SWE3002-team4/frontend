@@ -37,7 +37,7 @@ export const apiClient = axios.create({
   },
 });
 
-// Request Interceptor: 매 요청마다 헤더에 Access Token 주입
+// API 쓸때 토큰 끼움
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
   if (token && config.headers) {
@@ -58,7 +58,7 @@ const onRefreshed = (token: string) => {
   refreshSubscribers = [];
 };
 
-// Response Interceptor: 401 에러 발생 시 Refresh Token으로 자동 갱신 후 재시도
+// 401 뜨면 리프레시 토큰으로 자동 연장하고 다시 쏘기
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -73,7 +73,7 @@ apiClient.interceptors.response.use(
           originalRequest._retry = true;
 
           try {
-            // 인터셉터 무한 루프를 막기 위해 새 axios 인스턴스로 요청
+            // 무한루프 안돌게 쌩 axios로 요청 날림
             const refreshRes = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
             const { accessToken, refreshToken: newRefreshToken } = refreshRes.data;
 
@@ -81,7 +81,7 @@ apiClient.interceptors.response.use(
             isRefreshing = false;
             onRefreshed(accessToken);
 
-            // 실패했던 원래 요청의 헤더를 새 토큰으로 업데이트 후 재시도
+            // 아까 실패했던 요청에 새 토큰 발라서 재도전
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return apiClient(originalRequest);
             
@@ -92,7 +92,7 @@ apiClient.interceptors.response.use(
           }
         }
 
-        // 갱신 중일 때는 대기열에 넣었다가 갱신 완료 후 재시도
+        // 갱신 중일 땐 일단 줄세웠다가 끝나면 쫙 보냄
         return new Promise((resolve) => {
           subscribeTokenRefresh((token: string) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;

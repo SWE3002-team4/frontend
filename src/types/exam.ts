@@ -8,10 +8,10 @@ export interface UserMastery {
 }
 
 export interface CreateMockExamRequest {
-  quizProblemCount: number; // required, 1~50
-  documentIds?: string[]; // optional
-  targetWeakKeywords?: boolean; // optional, default true
-  keywordIds?: string[]; // optional
+  quizProblemCount: number; // 필수값, 1에서 50 사이
+  documentIds?: string[];
+  targetWeakKeywords?: boolean; // 안넣으면 기본 true
+  keywordIds?: string[]; 
 }
 
 export interface CreateMockExamResponse {
@@ -26,8 +26,8 @@ export type AttemptStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
 export interface MockExamLatestAttempt {
   attemptId: string;
   status: AttemptStatus;
-  startedAt: string; // ISO datetime
-  submittedAt: string | null; // ISO datetime
+  startedAt: string; // ISO 포맷 시간
+  submittedAt: string | null; // 제출 안했으면 null
   totalQuizProblems: number | null;
   correctCount: number | null;
   score: number | null;
@@ -41,7 +41,7 @@ export interface MockExamListItem {
   quizProblemCount: number;
   targetWeakKeywords: boolean;
   generatedFromMastery: boolean;
-  createdAt: string; // ISO datetime
+  createdAt: string; // 만든 시간
   latestAttempt: MockExamLatestAttempt | null;
 }
 

@@ -2,7 +2,7 @@ import { AuthResponse, UserProfile, GoogleLoginRequest, LoginCredentials, Regist
 import { apiClient, setTokens, clearTokens } from './apiClient';
 
 class AuthService {
-  // --- 기존 일반 로그인 인터페이스 복구 및 연동 ---
+  // --- 원래 있던 일반 로그인 살림 ---
   async postLogin(credentials: LoginCredentials): Promise<AuthResponse> {
 
     try {
@@ -17,7 +17,7 @@ class AuthService {
     }
   }
 
-  // --- 기존 일반 회원가입 인터페이스 복구 및 연동 ---
+  // --- 원래 있던 일반 회원가입 살림 ---
   async postRegister(credentials: RegisterCredentials): Promise<SuccessResponse> {
 
     try {
@@ -28,7 +28,7 @@ class AuthService {
     }
   }
 
-  // --- 인증 및 찾기 기능 ---
+  // --- 인증이랑 비번찾기 잡동사니 ---
   async requestRegisterVerificationCode(email: string): Promise<SuccessResponse> {
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/register/verification-code', { email });
@@ -65,7 +65,7 @@ class AuthService {
     }
   }
 
-  // --- 신규 구글 로그인 인터페이스 ---
+  // --- 새로 붙인 구글 로그인 ---
   async loginWithGoogle(idToken: string): Promise<AuthResponse> {
     const requestBody: GoogleLoginRequest = { idToken };
     
@@ -81,7 +81,7 @@ class AuthService {
     }
   }
 
-  // --- 공통 인터페이스 ---
+  // --- 공통으로 쓰는 애들 ---
   async getCurrentUser(): Promise<UserProfile> {
     try {
       const response = await apiClient.get<UserProfile>('/users/me');

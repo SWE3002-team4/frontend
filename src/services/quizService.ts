@@ -7,7 +7,7 @@ class QuizService {
     const data = response.data;
     
     const questions: Question[] = data.quizProblems.map(p => {
-      // Map Backend DifficultyLevel to Frontend Difficulty
+      // 난이도 글자 변환
       let diff: Difficulty = 'MEDIUM';
       if (p.difficulty === 'HARD') diff = 'HIGH';
       else if (p.difficulty === 'EASY') diff = 'LOW';
@@ -32,7 +32,6 @@ class QuizService {
   }
 
   async postSubmitAnswers(data: Record<string, any>): Promise<boolean> {
-    // 서버 전송 로직 모방
     await new Promise(resolve => setTimeout(resolve, 500));
 
     return true;
