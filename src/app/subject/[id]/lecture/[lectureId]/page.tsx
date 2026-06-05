@@ -124,7 +124,7 @@ export default function LectureDetailPage() {
 
   const handleStartQuiz = async () => {
     setIsGeneratingQuiz(true);
-    console.log(`[LectureDetailPage] handleStartQuiz called for lecture ID: ${lectureId}`);
+
     const quizId = await postRequestQuiz(lectureId);
     if (quizId) {
       // Navigate to the newly created Quiz Taking Page

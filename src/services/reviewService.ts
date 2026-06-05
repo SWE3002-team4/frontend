@@ -15,7 +15,7 @@ class ReviewService {
 
     return {
       attemptId: data.attemptId,
-      subjectId: '', // TODO: If subjectId is needed, fetch it from quiz details if provided later
+      subjectId: '',
       title,
       finalScore: data.score,
       results: data.problems.map((p) => ({

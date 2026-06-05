@@ -34,7 +34,7 @@ class QuizService {
   async postSubmitAnswers(data: Record<string, any>): Promise<boolean> {
     // 서버 전송 로직 모방
     await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('[QuizService] Submitted answers:', data);
+
     return true;
   }
 

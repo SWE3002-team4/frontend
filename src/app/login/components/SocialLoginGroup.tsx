@@ -16,7 +16,7 @@ export function SocialLoginGroup() {
           }
         }}
         onError={() => {
-          console.log('Login Failed');
+
           alert('구글 로그인에 실패했습니다.');
         }}
         useOneTap

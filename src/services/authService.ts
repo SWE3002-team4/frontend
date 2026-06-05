@@ -4,7 +4,7 @@ import { apiClient, setTokens, clearTokens } from './apiClient';
 class AuthService {
   // --- 기존 일반 로그인 인터페이스 복구 및 연동 ---
   async postLogin(credentials: LoginCredentials): Promise<AuthResponse> {
-    console.log('[AuthService] postLogin request:', credentials);
+
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
       const data = response.data;
@@ -19,7 +19,7 @@ class AuthService {
 
   // --- 기존 일반 회원가입 인터페이스 복구 및 연동 ---
   async postRegister(credentials: RegisterCredentials): Promise<SuccessResponse> {
-    console.log('[AuthService] postRegister request:', credentials);
+
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/register', credentials);
       return response.data;

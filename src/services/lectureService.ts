@@ -40,7 +40,7 @@ class LectureService {
   }
 
   async getLectureDetail(id: string): Promise<LectureDetail> {
-    console.log(`[LectureService] getLectureDetail called for ID: ${id}`);
+
     
     try {
       const response = await apiClient.get<DocumentDetailResponse>(`/documents/${id}`);
@@ -95,7 +95,7 @@ class LectureService {
   }
 
   async postRequestQuiz(id: string): Promise<string | null> {
-    console.log(`[LectureService] postRequestQuiz called for document ID: ${id}`);
+
     try {
       const response = await apiClient.post<CreateQuizResponseDto>(`/documents/${id}/quiz`, {
         quizProblemCount: 15,
