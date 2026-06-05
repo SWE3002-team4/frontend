@@ -16,7 +16,7 @@ export function KeywordAnalysisCard({ strongKeywords, weakKeywords }: KeywordAna
         {strongKeywords.length === 0 ? (
           <p className="text-xs text-gray-400">분석된 강한 키워드가 없습니다.</p>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
             {strongKeywords.map((kw, i) => (
               <span key={`strong-${i}`} className="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-semibold">
                 {kw}
@@ -31,7 +31,7 @@ export function KeywordAnalysisCard({ strongKeywords, weakKeywords }: KeywordAna
         {weakKeywords.length === 0 ? (
           <p className="text-xs text-gray-400">분석된 약한 키워드가 없습니다.</p>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
             {weakKeywords.map((kw, i) => (
               <span key={`weak-${i}`} className="px-2 py-1 rounded bg-red-100 text-red-800 text-xs font-semibold">
                 {kw}
