@@ -1,5 +1,6 @@
 import { LectureDetail, UploadDocumentResponse, DocumentDetailResponse } from '../types/subject';
 import { CreateQuizResponseDto } from '../types/quiz';
+import { DocumentLearningStatusResponse } from '../types/learningStatus';
 import { apiClient } from './apiClient';
 
 // MOCK_LECTURE_DETAILS 제거됨
@@ -33,6 +34,11 @@ class LectureService {
     return response.data;
   }
 
+  async getDocumentLearningStatus(documentId: string): Promise<DocumentLearningStatusResponse> {
+    const response = await apiClient.get<DocumentLearningStatusResponse>(`/documents/${documentId}/learning-status`);
+    return response.data;
+  }
+
   async getLectureDetail(id: string): Promise<LectureDetail> {
     console.log(`[LectureService] getLectureDetail called for ID: ${id}`);
     
@@ -40,16 +46,34 @@ class LectureService {
       const response = await apiClient.get<DocumentDetailResponse>(`/documents/${id}`);
       const doc = response.data;
       
+      let masteryScore = 0;
+      let coverageScore = 0;
+      let strongKeywords: string[] = [];
+      let weakKeywords: string[] = [];
+      
+      try {
+        const ls = await this.getDocumentLearningStatus(id);
+        masteryScore = Math.round(ls.mastery * 100);
+        coverageScore = Math.round(ls.coverage * 100);
+        strongKeywords = ls.strongKeywords.map(k => k.name);
+        weakKeywords = ls.weakKeywords.map(k => k.name);
+      } catch (err) {
+        console.warn('Failed to fetch learning status for document', err);
+        // Fallback
+        strongKeywords = (doc.keywords || []).filter(k => k.importanceScore >= 0.8).map(k => k.name);
+        weakKeywords = (doc.keywords || []).filter(k => k.importanceScore < 0.8).map(k => k.name);
+      }
+      
       // Convert to LectureDetail format expected by frontend
       return {
         materialId: doc.documentId,
         title: doc.title || '강의 자료',
         pdfUrl: doc.fileUrl,
         summaryText: doc.overallSummary || '요약본이 없습니다.',
-        strongKeywords: (doc.keywords || []).filter(k => k.importanceScore >= 0.8).map(k => k.name),
-        weakKeywords: (doc.keywords || []).filter(k => k.importanceScore < 0.8).map(k => k.name),
-        masteryScore: 0, // Fallback as Document API doesn't provide this yet
-        coverageScore: 0,
+        strongKeywords,
+        weakKeywords,
+        masteryScore,
+        coverageScore,
       };
     } catch (error) {
       console.warn('Failed to fetch from API:', error);
