@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useExamReview } from '../../../../hooks/useExamReview';
 import { ReviewHeader } from '../../../../components/exam/ReviewHeader';
 import { QuestionResultCard } from '../../../../components/exam/QuestionResultCard';
+import { Spinner } from '../../../../components/ui/Spinner';
 
 export default function ExamReviewPage() {
   const params = useParams();
@@ -18,7 +19,7 @@ export default function ExamReviewPage() {
   if (isLoading || !reviewData) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <Spinner size="lg" className="border-gray-200" />
         <p className="mt-4 text-sm font-bold text-gray-500">채점 결과를 불러오는 중...</p>
       </div>
     );

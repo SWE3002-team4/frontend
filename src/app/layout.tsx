@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { GoogleAuthProvider } from "../components/GoogleAuthProvider";
 
+import { ToastProvider } from "../contexts/ToastContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,7 +32,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <GoogleAuthProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </GoogleAuthProvider>
       </body>
     </html>

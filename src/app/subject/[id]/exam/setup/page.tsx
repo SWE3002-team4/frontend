@@ -6,11 +6,14 @@ import Link from 'next/link';
 import { useMockExam } from '../../../../../hooks/useMockExam';
 import { useSubjectDashboard } from '../../../../../hooks/useSubjectDashboard';
 import { Lecture } from '../../../../../types/subject';
+import { useToast } from '../../../../../contexts/ToastContext';
+import { Spinner } from '../../../../../components/ui/Spinner';
 
 export default function MockExamSetupPage() {
   const params = useParams();
   const router = useRouter();
   const subjectId = params.id as string;
+  const { showToast } = useToast();
 
   const { dashboardData } = useSubjectDashboard(subjectId);
   const { masteryData, isGenerating, generatePersonalizedExam } = useMockExam(subjectId);
@@ -33,7 +36,7 @@ export default function MockExamSetupPage() {
 
   const handleGenerate = async () => {
     if (selectedLectures.length === 0) {
-      alert('최소 한 개의 단원을 선택해 주세요.');
+      showToast('최소 한 개의 단원을 선택해 주세요.', 'error');
       return;
     }
 
@@ -51,7 +54,7 @@ export default function MockExamSetupPage() {
   if (!dashboardData || !masteryData) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <Spinner size="lg" className="border-gray-200" />
         <p className="mt-4 text-sm font-bold text-gray-500">데이터를 불러오는 중...</p>
       </div>
     );
@@ -63,7 +66,7 @@ export default function MockExamSetupPage() {
       {isGenerating && (
         <div className="absolute inset-0 z-50 bg-gray-900/40 flex flex-col items-center justify-center backdrop-blur-sm">
            <div className="bg-white p-8 rounded shadow-lg flex flex-col items-center">
-             <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+             <Spinner size="xl" className="border-gray-200 mb-4" />
              <h3 className="text-lg font-bold text-gray-800 mb-2">AI 맞춤형 모의고사 생성 중</h3>
              <p className="text-sm text-gray-500">학습자의 약점 키워드를 분석하여 문제를 출제하고 있습니다.</p>
            </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useToast } from '../contexts/ToastContext';
 import { Question, QuizDetails } from '../types/quiz';
 import { quizService } from '../services/quizService';
 import { quizAttemptService } from '../services/quizAttemptService';
@@ -8,6 +9,7 @@ import { SubmitAnswerDto } from '../types/quizAttempt';
 export function useQuizSession(quizId: string | null, customReturnUrl?: string) {
   const router = useRouter();
   const pathname = usePathname();
+  const { showToast } = useToast();
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -79,7 +81,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
     const answer = userAnswers[currentQuestion.id];
 
     if (!validateAnswer(currentQuestion, answer)) {
-      alert('정답을 입력해주세요.');
+      showToast('정답을 입력해주세요.', 'error');
       return;
     }
 
@@ -91,7 +93,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
       }
     } catch (error) {
       console.error('Failed to submit answer:', error);
-      alert('답안 제출 중 오류가 발생했습니다.');
+      showToast('답안 제출 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +106,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
     const answer = userAnswers[currentQuestion.id];
 
     if (!validateAnswer(currentQuestion, answer)) {
-      alert('정답을 입력해주세요.');
+      showToast('정답을 입력해주세요.', 'error');
       return;
     }
 
@@ -122,7 +124,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
       router.push(`/exam/${attemptId}/review?returnUrl=${returnUrl}`);
     } catch (error) {
       console.error('Failed to submit quiz:', error);
-      alert('최종 제출 중 오류가 발생했습니다.');
+      showToast('최종 제출 중 오류가 발생했습니다.', 'error');
       setIsSubmitting(false);
     }
   };

@@ -8,6 +8,8 @@ import { useLectureDetail } from '../../../../../hooks/useLectureDetail';
 import { Sidebar } from '../../../../../components/subject/Sidebar';
 import { ContentViewer } from '../../../../../components/lecture/ContentViewer';
 import { LearningAnalysisPanel } from '../../../../../components/lecture/LearningAnalysisPanel';
+import { useToast } from '../../../../../contexts/ToastContext';
+import { Spinner } from '../../../../../components/ui/Spinner';
 import { lectureService } from '../../../../../services/lectureService';
 
 export default function LectureDetailPage() {
@@ -16,6 +18,7 @@ export default function LectureDetailPage() {
   
   const subjectId = params.id as string;
   const lectureId = params.lectureId as string;
+  const { showToast } = useToast();
 
   const { dashboardData, isLoading: isDashboardLoading } = useSubjectDashboard(subjectId);
   const { lectureData, previousQuizzes, isLoading: isLectureLoading, error, postRequestQuiz } = useLectureDetail(lectureId);
@@ -80,7 +83,7 @@ export default function LectureDetailPage() {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+          <Spinner size="xl" />
           <p className="text-sm font-bold text-gray-500 animate-pulse">강의 정보를 불러오는 중...</p>
         </div>
       </div>
@@ -131,7 +134,7 @@ export default function LectureDetailPage() {
       router.push(`/subject/${subjectId}/lecture/${lectureId}/quiz?quizId=${quizId}`);
     } else {
       setIsGeneratingQuiz(false);
-      alert('퀴즈 생성에 실패했습니다. 문서가 분석 완료 상태인지 확인해주세요.');
+      showToast('퀴즈 생성에 실패했습니다. 문서가 분석 완료 상태인지 확인해주세요.', 'error');
     }
   };
 
@@ -241,10 +244,10 @@ export default function LectureDetailPage() {
                      className="px-4 py-2 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                    >
                      {uploadState === 'uploading' && (
-                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                       <Spinner size="sm" className="border-white border-t-transparent" />
                      )}
                      {uploadState === 'analyzing' && (
-                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                       <Spinner size="sm" className="border-white border-t-transparent" />
                      )}
                      {uploadState === 'uploading' ? '업로드 중...' : uploadState === 'analyzing' ? 'AI 분석 중...' : '업로드 및 AI 분석'}
                    </button>
@@ -258,7 +261,7 @@ export default function LectureDetailPage() {
        {isGeneratingQuiz && (
          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
            <div className="flex flex-col items-center gap-4 bg-white p-8 rounded shadow-lg">
-             <div className="w-10 h-10 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+             <Spinner size="lg" className="border-gray-200" />
              <p className="text-sm font-bold text-gray-700 animate-pulse">AI가 맞춤형 퀴즈를 생성하고 있습니다...</p>
            </div>
          </div>

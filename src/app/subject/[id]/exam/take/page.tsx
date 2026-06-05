@@ -7,6 +7,7 @@ import { useQuizSession } from '../../../../../hooks/useQuizSession';
 import { SingleChoiceQuiz } from '../../../../../components/quiz/SingleChoiceQuiz';
 import { MultipleChoiceQuiz } from '../../../../../components/quiz/MultipleChoiceQuiz';
 import { ShortAnswerQuiz } from '../../../../../components/quiz/ShortAnswerQuiz';
+import { Spinner } from '../../../../../components/ui/Spinner';
 
 export default function MockExamTakePage() {
   const params = useParams();
@@ -32,7 +33,7 @@ export default function MockExamTakePage() {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+          <Spinner size="xl" />
           <p className="text-sm font-bold text-gray-500 animate-pulse">모의고사를 불러오는 중...</p>
         </div>
       </div>
@@ -162,7 +163,7 @@ export default function MockExamTakePage() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  <Spinner size="sm" className="border-white border-t-transparent" />
                   제출 중...
                 </>
               ) : isLastQuestion ? (

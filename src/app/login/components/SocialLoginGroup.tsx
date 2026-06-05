@@ -3,9 +3,11 @@
 import React from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 import { GoogleLogin } from '@react-oauth/google';
+import { useToast } from '../../../contexts/ToastContext';
 
 export function SocialLoginGroup() {
   const { loginWithGoogle, isLoading } = useAuth();
+  const { showToast } = useToast();
 
   return (
     <div className="w-full flex justify-center mt-4">
@@ -16,8 +18,7 @@ export function SocialLoginGroup() {
           }
         }}
         onError={() => {
-
-          alert('구글 로그인에 실패했습니다.');
+          showToast('구글 로그인에 실패했습니다.', 'error');
         }}
         useOneTap
       />

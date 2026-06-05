@@ -9,6 +9,7 @@ import { ProgressCard } from '../../../components/subject/ProgressCard';
 import { KeywordAnalysisCard } from '../../../components/subject/KeywordAnalysisCard';
 import { MockExamCard } from '../../../components/subject/MockExamCard';
 import { lectureService } from '../../../services/lectureService';
+import { Spinner } from '../../../components/ui/Spinner';
 
 export default function SubjectDashboardPage() {
   const params = useParams();
@@ -72,7 +73,7 @@ export default function SubjectDashboardPage() {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-100 text-gray-900 font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
+          <Spinner size="xl" />
           <p className="text-sm font-bold text-gray-500 animate-pulse">
             대시보드를 불러오는 중...
           </p>
@@ -241,10 +242,10 @@ export default function SubjectDashboardPage() {
                      className="px-4 py-2 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                    >
                      {uploadState === 'uploading' && (
-                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                       <Spinner size="sm" className="border-white border-t-transparent" />
                      )}
                      {uploadState === 'analyzing' && (
-                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                       <Spinner size="sm" className="border-white border-t-transparent" />
                      )}
                      {uploadState === 'uploading' ? '업로드 중...' : uploadState === 'analyzing' ? 'AI 분석 중...' : '업로드 및 AI 분석'}
                    </button>

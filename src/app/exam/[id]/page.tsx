@@ -7,11 +7,14 @@ import { quizService } from '../../../services/quizService';
 import { quizAttemptService } from '../../../services/quizAttemptService';
 import { QuizDetails, Question } from '../../../types/quiz';
 import { SubmitAnswerDto } from '../../../types/quizAttempt';
+import { useToast } from '../../../contexts/ToastContext';
+import { Spinner } from '../../../components/ui/Spinner';
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   const quizId = params.id as string;
+  const { showToast } = useToast();
 
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export default function ExamPage() {
     } catch (err) {
       console.error(err);
       setStep('intro');
-      alert('퀴즈를 시작할 수 없습니다.');
+      showToast('퀴즈를 시작할 수 없습니다.', 'error');
     }
   };
 
@@ -92,14 +95,14 @@ export default function ExamPage() {
     } catch (err) {
       console.error(err);
       setStep('quiz');
-      alert('답안 제출 중 오류가 발생했습니다.');
+      showToast('답안 제출 중 오류가 발생했습니다.', 'error');
     }
   };
 
   if (step === 'loading' || !quizDetails) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <Spinner size="lg" className="border-gray-200" />
         <p className="mt-4 text-sm font-bold text-gray-500">불러오는 중...</p>
       </div>
     );
