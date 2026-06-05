@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient';
 import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest, DocumentMetadataResponse, Lecture } from '../types/subject';
+import { SubjectLearningStatusResponse } from '../types/learningStatus';
 
 // MOCK_DASHBOARDS 제거됨
 
@@ -28,14 +29,40 @@ class SubjectService {
     };
   }
 
+  async getSubjectLearningStatus(id: string): Promise<SubjectLearningStatusResponse> {
+    const response = await apiClient.get<SubjectLearningStatusResponse>(`/subjects/${id}/learning-status`);
+    return response.data;
+  }
+
   async getSubjects(): Promise<Subject[]> {
     const response = await apiClient.get<SubjectResponse[]>('/subjects');
-    return response.data.map(this.mapResponseToSubject);
+    const subjects = response.data.map(item => this.mapResponseToSubject(item));
+    
+    // Fetch learning status for all subjects
+    const subjectsWithProgress = await Promise.all(
+      subjects.map(async (subject) => {
+        try {
+          const statusRes = await this.getSubjectLearningStatus(subject.id);
+          subject.progress = Math.round(statusRes.mastery * 100);
+        } catch (e) {
+          console.warn(`Failed to fetch learning status for subject ${subject.id}`, e);
+        }
+        return subject;
+      })
+    );
+    return subjectsWithProgress;
   }
 
   async getSubjectDetail(id: string): Promise<Subject> {
     const response = await apiClient.get<SubjectResponse>(`/subjects/${id}`);
-    return this.mapResponseToSubject(response.data);
+    const subject = this.mapResponseToSubject(response.data);
+    try {
+      const statusRes = await this.getSubjectLearningStatus(id);
+      subject.progress = Math.round(statusRes.mastery * 100);
+    } catch (e) {
+      console.warn(`Failed to fetch learning status for subject ${id}`, e);
+    }
+    return subject;
   }
 
   async postSubject(dto: CreateSubjectDto): Promise<Subject> {
@@ -98,14 +125,22 @@ class SubjectService {
       console.warn('Failed to fetch documents for dashboard', e);
     }
 
-    // 3. Fill Dashboard Metrics (API 연결 전까지 기본값)
+    // 3. Fetch Learning Status
+    let statusData: SubjectLearningStatusResponse | null = null;
+    try {
+      statusData = await this.getSubjectLearningStatus(id);
+    } catch (e) {
+      console.warn('Failed to fetch learning status for dashboard', e);
+    }
+
+    // 4. Fill Dashboard Metrics
     return {
       subjectId: id,
       subjectName: subjectName,
-      mastery: 0,
-      coverage: 0,
-      strongKeywords: [],
-      weakKeywords: [],
+      mastery: statusData ? Math.round(statusData.mastery * 100) : 0,
+      coverage: statusData ? Math.round(statusData.coverage * 100) : 0,
+      strongKeywords: statusData ? statusData.strongKeywords.map(k => k.name) : [],
+      weakKeywords: statusData ? statusData.weakKeywords.map(k => k.name) : [],
       lectures: lectures,
       history: [],
     };
