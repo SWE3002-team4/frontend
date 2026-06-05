@@ -7,16 +7,42 @@ export interface UserMastery {
   weakKeywords: Keyword[];
 }
 
-export interface ExamSettings {
-  subjectId: string;
-  selectedLectures: string[];
-  questionCount: number;
+export interface CreateMockExamRequest {
+  quizProblemCount: number; // required, 1~50
+  documentIds?: string[]; // optional
+  targetWeakKeywords?: boolean; // optional, default true
+  keywordIds?: string[]; // optional
 }
 
-export interface MockExamSession {
-  examId: string;
+export interface CreateMockExamResponse {
+  mockExamId: string;
+  quizId: string;
+  quizType: 'MOCK_EXAM';
+  quizProblemCount: number;
+}
+
+export type AttemptStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
+
+export interface MockExamLatestAttempt {
+  attemptId: string;
+  status: AttemptStatus;
+  startedAt: string; // ISO datetime
+  submittedAt: string | null; // ISO datetime
+  totalQuizProblems: number | null;
+  correctCount: number | null;
+  score: number | null;
+}
+
+export interface MockExamListItem {
+  mockExamId: string;
+  quizId: string;
+  subjectId: string;
   title: string;
-  questions: Question[];
+  quizProblemCount: number;
+  targetWeakKeywords: boolean;
+  generatedFromMastery: boolean;
+  createdAt: string; // ISO datetime
+  latestAttempt: MockExamLatestAttempt | null;
 }
 
 export interface QuestionResult {

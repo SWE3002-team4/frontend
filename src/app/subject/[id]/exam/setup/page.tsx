@@ -37,14 +37,14 @@ export default function MockExamSetupPage() {
       return;
     }
 
-    const success = await generatePersonalizedExam({
-      subjectId,
-      selectedLectures,
-      questionCount
+    const quizId = await generatePersonalizedExam({
+      quizProblemCount: questionCount,
+      documentIds: selectedLectures,
+      targetWeakKeywords: true
     });
 
-    if (success) {
-      router.push(`/subject/${subjectId}/exam/take`);
+    if (quizId) {
+      router.push(`/subject/${subjectId}/exam/take?quizId=${quizId}`);
     }
   };
 
@@ -85,15 +85,16 @@ export default function MockExamSetupPage() {
             <div className="bg-blue-50 border border-blue-200 rounded p-4 flex gap-4 items-center">
                <div className="flex-1">
                  <h3 className="text-[13px] font-bold text-blue-800 uppercase mb-2">나의 학습 현황 요약</h3>
-                 <div className="flex flex-wrap gap-2 items-center">
-                    <span className="text-sm text-gray-700">종합 숙련도: <span className="font-bold text-blue-700">{masteryData.overallMastery}%</span></span>
-                    <span className="text-gray-300">|</span>
-                    <span className="text-sm text-gray-700 flex gap-2 items-center">
-                      주요 약점: 
-                      {masteryData.weakKeywords.map((kw, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-red-100 text-red-800 text-[11px] rounded font-bold">{kw}</span>
-                      ))}
-                    </span>
+                  <div className="flex flex-col gap-3">
+                    <span className="text-sm text-gray-700">종합 숙련도: <span className="font-bold text-blue-700">{Math.round(masteryData.mastery * 100)}%</span></span>
+                    <div className="text-sm text-gray-700 flex gap-2 items-start border-t border-blue-200 pt-3">
+                      <span className="shrink-0 mt-0.5">주요 약점:</span>
+                      <div className="flex flex-wrap gap-2 max-h-[80px] overflow-y-auto pr-2 custom-scrollbar">
+                        {masteryData.weakKeywords.map((kw, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-red-100 text-red-800 text-[11px] rounded font-bold whitespace-nowrap">{kw.name}</span>
+                        ))}
+                      </div>
+                    </div>
                  </div>
                </div>
             </div>

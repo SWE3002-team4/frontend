@@ -5,6 +5,8 @@ export interface Subject {
   imageUrl: string;
 }
 
+import { MockExamListItem } from './exam';
+
 export interface SubjectResponse {
   id: string;
   name: string;
@@ -38,12 +40,6 @@ export interface Lecture {
 
 export type Keyword = string;
 
-export interface ExamResult {
-  id: string;
-  name: string;
-  score: string;
-}
-
 export interface DashboardInfo {
   subjectId: string;
   subjectName: string;
@@ -52,7 +48,7 @@ export interface DashboardInfo {
   coverage: number;
   strongKeywords: Keyword[];
   weakKeywords: Keyword[];
-  history: ExamResult[];
+  history: MockExamListItem[];
 }
 
 export interface LectureDetail {

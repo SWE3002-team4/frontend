@@ -1,6 +1,8 @@
 import { apiClient } from './apiClient';
 import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjectRequest, DocumentMetadataResponse, Lecture } from '../types/subject';
 import { SubjectLearningStatusResponse } from '../types/learningStatus';
+import { examService } from './examService';
+import { MockExamListItem } from '../types/exam';
 
 // MOCK_DASHBOARDS 제거됨
 
@@ -133,7 +135,15 @@ class SubjectService {
       console.warn('Failed to fetch learning status for dashboard', e);
     }
 
-    // 4. Fill Dashboard Metrics
+    // 4. Fetch Mock Exams History
+    let mockExams: MockExamListItem[] = [];
+    try {
+      mockExams = await examService.getSubjectMockExams(id);
+    } catch (e) {
+      console.warn('Failed to fetch mock exams for dashboard', e);
+    }
+
+    // 5. Fill Dashboard Metrics
     return {
       subjectId: id,
       subjectName: subjectName,
@@ -142,7 +152,7 @@ class SubjectService {
       strongKeywords: statusData ? statusData.strongKeywords.map(k => k.name) : [],
       weakKeywords: statusData ? statusData.weakKeywords.map(k => k.name) : [],
       lectures: lectures,
-      history: [],
+      history: mockExams,
     };
   }
 }
