@@ -24,9 +24,12 @@ export default function MockExamSetupPage() {
   // Initialize selected lectures to all available lectures
   useEffect(() => {
     if (dashboardData && dashboardData.lectures.length > 0 && selectedLectures.length === 0) {
-      setSelectedLectures(dashboardData.lectures.map(l => l.id));
+      const timer = setTimeout(() => {
+        setSelectedLectures(dashboardData.lectures.map(l => l.id));
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [dashboardData]);
+  }, [dashboardData, selectedLectures.length]);
 
   const handleRangeToggle = (id: string) => {
     setSelectedLectures(prev => 

@@ -30,8 +30,8 @@ export default function FindIdPage() {
       } else {
         setError('입력하신 정보와 일치하는 계정을 찾을 수 없습니다.');
       }
-    } catch (err: any) {
-      setError(err.message || '아이디 찾기 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '아이디 찾기 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }

@@ -125,21 +125,21 @@ export default function QuizPage() {
                {currentQuestion.type === 'SINGLE_CHOICE' && (
                  <SingleChoiceQuiz 
                    question={currentQuestion}
-                   selectedId={userAnswers[currentQuestion.id] || ''}
+                   selectedId={(userAnswers[currentQuestion.id] as string) || ''}
                    onSelect={handleSingleChoiceSelect}
                  />
                )}
                {currentQuestion.type === 'MULTIPLE_CHOICE' && (
                  <MultipleChoiceQuiz 
                    question={currentQuestion}
-                   selectedIds={userAnswers[currentQuestion.id] || []}
+                   selectedIds={(userAnswers[currentQuestion.id] as string[]) || []}
                    onToggle={handleMultipleChoiceToggle}
                  />
                )}
                {currentQuestion.type === 'SHORT_ANSWER' && (
                  <ShortAnswerQuiz 
                    question={currentQuestion}
-                   inputValue={userAnswers[currentQuestion.id] || ''}
+                   inputValue={(userAnswers[currentQuestion.id] as string) || ''}
                    onInputChange={handleShortAnswerChange}
                  />
                )}

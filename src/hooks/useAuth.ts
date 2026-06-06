@@ -53,9 +53,9 @@ export function useAuth() {
     try {
       const response = await authService.postRegister(credentials);
       return response.success;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || '회원가입에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
       return false;
     } finally {
       setIsLoading(false);
@@ -68,9 +68,9 @@ export function useAuth() {
     try {
       const response = await authService.requestRegisterVerificationCode(email);
       return response.success;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || '인증번호 발송에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '인증번호 발송에 실패했습니다.');
       return false;
     } finally {
       setIsLoading(false);

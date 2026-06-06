@@ -6,7 +6,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useToast } from '../../../contexts/ToastContext';
 
 export function SocialLoginGroup() {
-  const { loginWithGoogle, isLoading } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const { showToast } = useToast();
 
   return (

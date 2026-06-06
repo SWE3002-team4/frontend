@@ -24,13 +24,16 @@ export function AuthForm({ isLoginMode }: AuthFormProps) {
 
   // 탭 변경 시 상태 초기화
   useEffect(() => {
-    setValidationError('');
-    setSuccessMessage('');
-    setError(null);
-    if (!isLoginMode) {
-      setIsCodeSent(false);
-      setVerificationCode('');
-    }
+    const timer = setTimeout(() => {
+      setValidationError('');
+      setSuccessMessage('');
+      setError(null);
+      if (!isLoginMode) {
+        setIsCodeSent(false);
+        setVerificationCode('');
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [isLoginMode, setError]);
 
   const validateEmail = (): boolean => {

@@ -34,8 +34,8 @@ export default function ResetPasswordPage() {
         setIsCodeSent(true);
         setSuccessMessage('비밀번호 재설정 인증번호가 발송되었습니다. 이메일을 확인해주세요.');
       }
-    } catch (err: any) {
-      setError(err.message || '인증번호 발송 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '인증번호 발송 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -70,8 +70,8 @@ export default function ResetPasswordPage() {
           router.push('/login');
         }, 2000);
       }
-    } catch (err: any) {
-      setError(err.message || '비밀번호 재설정 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '비밀번호 재설정 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }

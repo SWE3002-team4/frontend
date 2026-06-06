@@ -61,10 +61,10 @@ export default function LectureDetailPage() {
       
       router.push(`/subject/${subjectId}/lecture/${uploadRes.documentId}`);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err);
       setUploadState('error');
-      setUploadError(err.message || '업로드 및 분석 중 오류가 발생했습니다.');
+      setUploadError(err instanceof Error ? err.message : '업로드 및 분석 중 오류가 발생했습니다.');
     }
   };
 

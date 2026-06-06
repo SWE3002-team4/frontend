@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { quizService } from '../../../services/quizService';
 import { quizAttemptService } from '../../../services/quizAttemptService';
-import { QuizDetails, Question } from '../../../types/quiz';
+import { QuizDetails } from '../../../types/quiz';
 import { SubmitAnswerDto } from '../../../types/quizAttempt';
 import { useToast } from '../../../contexts/ToastContext';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -21,7 +21,7 @@ export default function ExamPage() {
   
   const [step, setStep] = useState<'loading' | 'intro' | 'quiz' | 'submitting'>('loading');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({}); // key: questionId, value: string | string[]
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({}); // key: questionId, value: string | string[]
 
   useEffect(() => {
     if (quizId) {

@@ -13,7 +13,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<string, string | string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,14 +40,14 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
     loadQuizAndStart();
   }, [quizId]);
 
-  const saveAnswer = (questionId: string, value: any) => {
+  const saveAnswer = (questionId: string, value: string | string[]) => {
     setUserAnswers(prev => ({
       ...prev,
       [questionId]: value
     }));
   };
 
-  const submitCurrentAnswer = async (question: Question, answer: any) => {
+  const submitCurrentAnswer = async (question: Question, answer: string | string[]) => {
     if (!attemptId) return;
     const dto: SubmitAnswerDto = {
       quizProblemId: question.id,
@@ -62,7 +62,7 @@ export function useQuizSession(quizId: string | null, customReturnUrl?: string) 
     await quizAttemptService.submitAnswer(attemptId, dto);
   };
 
-  const validateAnswer = (question: Question, answer: any): boolean => {
+  const validateAnswer = (question: Question, answer: string | string[]): boolean => {
     if (question.type === 'MULTIPLE_CHOICE') {
       if (!answer || (Array.isArray(answer) && answer.length === 0)) {
         return false;

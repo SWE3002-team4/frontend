@@ -47,7 +47,7 @@ export interface MockExamListItem {
 
 export interface QuestionResult {
   question: Question;
-  userAnswer: any;
+  userAnswer: unknown;
   isCorrect: boolean;
   explanation: string;
   keywords: string[];

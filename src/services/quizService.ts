@@ -31,7 +31,8 @@ class QuizService {
     };
   }
 
-  async postSubmitAnswers(data: Record<string, any>): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async postSubmitAnswers(_data: Record<string, unknown>): Promise<boolean> {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     return true;

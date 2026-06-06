@@ -12,7 +12,7 @@ class AuthService {
         setTokens(data.accessToken, data.refreshToken);
       }
       return data;
-    } catch (error) {
+    } catch {
       throw new Error('로그인에 실패했습니다.');
     }
   }
@@ -23,7 +23,7 @@ class AuthService {
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/register', credentials);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('회원가입에 실패했습니다.');
     }
   }
@@ -33,7 +33,7 @@ class AuthService {
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/register/verification-code', { email });
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('인증번호 발송에 실패했습니다.');
     }
   }
@@ -42,7 +42,7 @@ class AuthService {
     try {
       const response = await apiClient.post<FindIdResponse>('/auth/find-id', data);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('아이디 찾기에 실패했습니다.');
     }
   }
@@ -51,7 +51,7 @@ class AuthService {
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/password-reset/verification-code', data);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('인증번호 발송에 실패했습니다.');
     }
   }
@@ -60,7 +60,7 @@ class AuthService {
     try {
       const response = await apiClient.post<SuccessResponse>('/auth/password-reset/confirm', data);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('비밀번호 재설정에 실패했습니다.');
     }
   }
@@ -76,7 +76,7 @@ class AuthService {
         setTokens(data.accessToken, data.refreshToken);
       }
       return data;
-    } catch (error) {
+    } catch {
       throw new Error('Google login failed');
     }
   }
@@ -86,7 +86,7 @@ class AuthService {
     try {
       const response = await apiClient.get<UserProfile>('/users/me');
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to get current user');
     }
   }
@@ -95,7 +95,7 @@ class AuthService {
     try {
       const response = await apiClient.patch<UserProfile>('/users/me', data);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to update current user');
     }
   }

@@ -85,7 +85,7 @@ apiClient.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return apiClient(originalRequest);
             
-          } catch (refreshError) {
+          } catch {
             clearTokens();
             isRefreshing = false;
             return Promise.reject(new Error('Session expired'));

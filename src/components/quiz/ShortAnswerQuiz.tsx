@@ -7,7 +7,7 @@ interface ShortAnswerQuizProps {
   onInputChange: (text: string) => void;
 }
 
-export function ShortAnswerQuiz({ question, inputValue = '', onInputChange }: ShortAnswerQuizProps) {
+export function ShortAnswerQuiz({ inputValue = '', onInputChange }: ShortAnswerQuizProps) {
   return (
     <div className="w-full">
       <textarea
