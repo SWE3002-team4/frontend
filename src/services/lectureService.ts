@@ -2,6 +2,7 @@ import { LectureDetail, UploadDocumentResponse, DocumentDetailResponse } from '.
 import { CreateQuizResponseDto } from '../types/quiz';
 import { DocumentLearningStatusResponse } from '../types/learningStatus';
 import { apiClient } from './apiClient';
+import { fixTitleEncoding } from '../utils/encoding';
 
 // MOCK_LECTURE_DETAILS 제거됨
 
@@ -67,7 +68,7 @@ class LectureService {
       // 화면에 뿌려주기 위함
       return {
         materialId: doc.documentId,
-        title: doc.title || '강의 자료',
+        title: fixTitleEncoding(doc.title || '강의 자료'),
         pdfUrl: doc.fileUrl,
         summaryText: doc.overallSummary || '요약본이 없습니다.',
         strongKeywords,

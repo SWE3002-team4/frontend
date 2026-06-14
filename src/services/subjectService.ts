@@ -3,6 +3,7 @@ import { Subject, CreateSubjectDto, DashboardInfo, SubjectResponse, UpdateSubjec
 import { SubjectLearningStatusResponse } from '../types/learningStatus';
 import { examService } from './examService';
 import { MockExamListItem } from '../types/exam';
+import { fixTitleEncoding } from '../utils/encoding';
 
 // MOCK_DASHBOARDS 제거됨
 
@@ -121,7 +122,7 @@ class SubjectService {
       const response = await apiClient.get<DocumentMetadataResponse[]>(`/subjects/${id}/documents`);
       lectures = response.data.map(doc => ({
         id: doc.documentId,
-        title: doc.title || doc.originalFileName || '제목 없음',
+        title: fixTitleEncoding(doc.title || doc.originalFileName || '제목 없음'),
       }));
     } catch (e) {
       console.warn('Failed to fetch documents for dashboard', e);
