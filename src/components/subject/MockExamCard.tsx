@@ -30,8 +30,10 @@ export function MockExamCard({ history, onTakeExam }: MockExamCardProps) {
             const isGraded = latest && latest.status === 'GRADED';
             const isStarted = latest !== null;
             
-            // 링크 목적지: 시도 내역이 없으면 문제 풀이 진입, 있으면 리뷰 화면
-            const href = isStarted 
+            const isCompleted = isStarted && (latest.status === 'SUBMITTED' || latest.status === 'GRADED');
+            
+            // 링크 목적지: 시도 내역이 없거나 진행 중이면 문제 풀이 진입, 완료되었으면 리뷰 화면
+            const href = isCompleted 
               ? `/exam/${latest.attemptId}/review?returnUrl=/subject/${exam.subjectId}` 
               : `/subject/${exam.subjectId}/exam/take?quizId=${exam.quizId}`;
               
