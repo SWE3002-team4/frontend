@@ -31,7 +31,9 @@ frontend/
     │   ├── quiz/         # 퀴즈 UI components
     │   ├── subject/      # 과목 UI components
     │   └── ui/           # 공통 UI components
+    ├── contexts/         # 전역 상태 관리 (Context API) 폴더
     ├── hooks/            # 커스텀 훅 폴더
     ├── services/         # 외부 API 통신을 위한 서비스
-    └── types/            # 타입 정의
+    ├── types/            # 타입 정의
+    └── utils/            # 유틸리티 함수 폴더
 ```
